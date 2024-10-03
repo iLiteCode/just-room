@@ -88,7 +88,6 @@ app.post("/api/predict", async (req, res) => {
       console.error("Error ending PythonShell:", err);
       return res.status(500).send("Error ending PythonShell");
     }
-    console.log("PythonShell process ended.");
     res.json({
       result: predictionOutput.toUpperCase(),
       maliciousCount: totalMaliciousCount,
