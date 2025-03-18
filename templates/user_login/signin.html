@@ -21,7 +21,7 @@
             </div>
             
             <form action="{% url 'user:signin' %}" method="POST" id="signin-form">
-                <h3>Sign In</h3>
+                <h3>User Sign In</h3>
                 {% csrf_token %}
                 {% if message %} 
                     <p class="hint-text text-center" style="color: #FF0000">{{ message }}</p>
