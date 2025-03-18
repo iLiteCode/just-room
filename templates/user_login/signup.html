@@ -20,7 +20,7 @@
 				</div>
 
 				<form action="{% url 'user:signup' %}" method="POST" id="signup-form">
-					<h3>Sign Up</h3>
+					<h3>User Sign Up</h3>
 					{% csrf_token %}
 					{% if message %} 
 					<p class="hint-text text-danger">{{message}}</p>
