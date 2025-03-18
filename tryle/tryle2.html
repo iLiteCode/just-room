@@ -1,0 +1,93 @@
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeout-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .timeout-card {
+            max-width: 500px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .timeout-icon {
+            font-size: 3rem;
+            color: #dc3545;
+        }
+
+        .company-info {
+            background-color: #e9ecef;
+            padding: 2rem;
+            margin-top: auto;
+        }
+
+        .kesari-text {
+            color: #FF9933; /* Kesari/saffron color */
+        }
+
+        .company-icon {
+            margin-right: 8px;
+            color: #FF9933;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+    </style>
+
+    <div class="timeout-container">
+        <div class="timeout-card card p-4 fade-in">
+            <div class="card-body text-center">
+                <div class="timeout-icon mb-3">⏰</div>
+                <h2 class="card-title mb-3">Link Expired</h2>
+                <p class="card-text text-muted mb-4">
+                    Sorry, your password reset link has expired. For security reasons, 
+                    reset links are only valid for a limited time.
+                </p>
+                <a href="#" class="btn btn-primary">Request New Link</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="company-info">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="kesari-text">
+                        <span class="company-icon">🕉</span>PandharpurGuide.com
+                    </h5>
+                    <p class="kesari-text">Your All in One stop for everything in Pandharpur</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h5>Contact Us</h5>
+                    <p>Email: <a href="mailto:support@xai.com">support@xai.com</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+

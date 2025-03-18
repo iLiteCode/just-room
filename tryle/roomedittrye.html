@@ -1,0 +1,826 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Room</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Animation for checkboxes */
+        .checkbox-animated input[type="checkbox"]:not(:checked),
+        .checkbox-animated input[type="checkbox"]:checked {
+            visibility: hidden;
+        }
+
+        .checkbox-animated input[type="checkbox"]:checked + .checkmark,
+        .checkbox-animated input[type="checkbox"]:not(:checked) + .checkmark {
+            visibility: visible;
+        }
+
+        .checkbox-animated {
+            display: inline-block;
+            position: relative;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            background-color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkbox-animated input[type="checkbox"]:checked + .checkmark {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Hotel name dropdown animation */
+        select {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="header">
+        <h1 class="m-0 text-center bg-warning my-0 py-3">Edit Room</h1>
+    </div>
+
+
+    <center>
+        
+                <!-- Display form errors -->
+                <div class="text-danger">
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <div>
+                                <strong>{{ field.label }}:</strong>
+                                <ul>
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+    </center>
+
+
+    <div class="container">
+        <div class="form-container bg-white">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="roomid" value="{{ room.id }}">
+                
+
+                <div class="row">
+                    <!-- Room Number -->
+                    <div class="col-md-6 mb-3">
+                        <label for="roomnumber" class="form-label">Room Number</label>
+                        <input type="number" class="form-control" id="roomnumber" name="roomnumber" value="{{ form.instance.room_number }}" disabled>
+                    </div>
+
+                    <!-- Room Type -->
+                    <!-- Room Type -->
+                    <div class="col-md-6 mb-3">
+                        <label for="roomtype" class="form-label">Room Type</label>
+                        <select class="form-select" name="roomtype" id="roomtype">
+                            <option value="1" {% if form.instance.room_type == '1' %}selected{% endif %}>Premium</option>
+                            <option value="2" {% if form.instance.room_type == '2' %}selected{% endif %}>Deluxe</option>
+                            <option value="3" {% if form.instance.room_type == '3' %}selected{% endif %}>Basic</option>
+                        </select>
+                    </div>
+
+                    <!-- Capacity -->
+                    <div class="col-md-6 mb-3">
+                        <label for="capacity" class="form-label">Capacity</label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" value="{{ form.instance.capacity }}">
+                    </div>
+
+                    <!-- Check-In Time -->
+                        <div class="col-md-6 mb-3">
+                            <label for="check_in_time" class="form-label">Check-In Time</label>
+                            <input type="time" class="form-control" id="check_in_time" name="check_in_time" 
+                                value="{{ form.instance.check_in_time|default:'' }}">
+                        </div>
+
+                        <!-- Check-Out Time -->
+                        <div class="col-md-6 mb-3">
+                            <label for="check_out_time" class="form-label">Check-Out Time</label>
+                            <input type="time" class="form-control" id="check_out_time" name="check_out_time" 
+                                value="{{ form.instance.check_out_time|default:'' }}">
+                        </div>
+
+
+                    <!-- Price -->
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="price" name="price" value="{{ form.instance.price }}">
+                        </div>
+                    </div>
+
+                    <!-- Size -->
+                    <div class="col-md-6 mb-3">
+                        <label for="size" class="form-label">Size (sq.ft)</label>
+                        <input type="number" class="form-control" id="size" name="size" value="{{ form.instance.size }}">
+                    </div>
+
+                    <!-- Discount -->
+                        <div class="col-md-6 mb-3">
+                            <label for="discount" class="form-label">Discount</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="discount" name="discount" 
+                                    value="{{ form.instance.discount|default:0 }}">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+
+                    <!-- Status -->
+                    <div class="col-md-6 mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" name="status" id="status">
+                            <option value="1" {% if form.instance.status == '1' %}selected{% endif %}>Available</option>
+                            <option value="2" {% if form.instance.status == '2' %}selected{% endif %}>Not Available</option>
+                        </select>
+                    </div>
+
+                    <!-- Hotel -->
+                    <div class="col-md-6 mb-3">
+                        <label for="hotel" class="form-label">Hotel Location</label>
+                        <select class="form-select" id="hotel" name="hotel">
+                            {% for hotel in hotels %}
+                            <option value="{{ hotel.id }}" {% if hotel.id == form.instance.hotel.id %}selected{% endif %}>
+                                {{ hotel.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                                        
+
+                    <!-- Description -->
+                    <div class="col-12 mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ form.instance.description }} </textarea>
+                    </div>
+
+                    <!-- Heading -->
+                    <div class="col-12 mb-3">
+                        <label for="heading" class="form-label">Heading</label>
+                        <input type="text" class="form-control" id="heading" name="heading" value="{{ form.instance.heading }}">
+                    </div>
+
+                    <!-- Food Facility -->
+                    <div class="col-md-6 mb-3">
+                        <label for="food_facility" class="form-label">Food Facility</label>
+                        <select class="form-select" name="food_facility" id="food_facility">
+                            <option value="1" {% if form.instance.food_facility %}selected{% endif %}>Yes</option>
+                            <option value="0" {% if not form.instance.food_facility %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Parking -->
+                    <div class="col-md-6 mb-3">
+                        <label for="parking" class="form-label">Parking</label>
+                        <select class="form-select" name="parking" id="parking">
+                            <option value="1" {% if form.instance.parking %}selected{% endif %}>Yes</option>
+                            <option value="0" {% if not form.instance.parking %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Images -->
+                    <div class="col-md-4 mb-3">
+                        <label for="image1" class="form-label">Image 1</label>
+                        <input type="file" class="form-control" id="image1" name="image1">
+                        {% if form.instance.image1 %}
+                        <img src="{{ form.instance.image1.url }}" alt="Image 1" class="img-fluid mt-2" width="100">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="image2" class="form-label">Image 2</label>
+                        <input type="file" class="form-control" id="image2" name="image2">
+                        {% if form.instance.image2 %}
+                        <img src="{{ form.instance.image2.url }}" alt="Image 2" class="img-fluid mt-2" width="100">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="image3" class="form-label">Image 3</label>
+                        <input type="file" class="form-control" id="image3" name="image3">
+                        {% if form.instance.image3 %}
+                        <img src="{{ form.instance.image3.url }}" alt="Image 3" class="img-fluid mt-2" width="100">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Room Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .preview-image {
+            max-width: 100px;
+            margin-top: 10px;
+        }
+        .header {
+            background-color: #ffc107;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="header">
+        <h1 class="m-0 text-center bg-warning my-0">Edit Room</h1>
+    </div>
+
+    <div class="container">
+        <div class="form-container bg-white">
+            <form action="/staff/panel/edit-room/edit" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="roomid" value="{{ room.id }}">
+
+                <div class="row">
+                    <!-- Room Number -->
+                    <div class="col-md-6 mb-3">
+                        <label for="roomnumber" class="form-label">Room Number</label>
+                        <input type="number" class="form-control" id="roomnumber" name="roomnumber" value="{{ room.room_number }}" disabled>
+                    </div>
+
+                    <!-- Room Type -->
+                    <div class="col-md-6 mb-3">
+                        <label for="roomtype" class="form-label">Room Type</label>
+                        <select class="form-select" name="roomtype" id="roomtype">
+                            <option value="1" {% if room.room_type == '1' %}selected{% endif %}>Premium</option>
+                            <option value="2" {% if room.room_type == '2' %}selected{% endif %}>Deluxe</option>
+                            <option value="3" {% if room.room_type == '3' %}selected{% endif %}>Basic</option>
+                        </select>
+                    </div>
+
+                    <!-- Capacity -->
+                    <div class="col-md-6 mb-3">
+                        <label for="capacity" class="form-label">Capacity</label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" value="{{ room.capacity }}">
+                    </div>
+
+                   <!-- Check-In Time -->
+<div class="col-md-6 mb-3">
+    <label for="check_in_time" class="form-label">Check-In Time</label>
+    <input type="time" class="form-control" id="check_in_time" name="check_in_time" value="{{ room.check_in_time|default_if_none:'' }}">
+</div>
+
+<!-- Check-Out Time -->
+<div class="col-md-6 mb-3">
+    <label for="check_out_time" class="form-label">Check-Out Time</label>
+    <input type="time" class="form-control" id="check_out_time" name="check_out_time" value="{{ room.check_out_time|default_if_none:'' }}">
+</div>
+
+
+
+                    <!-- Price -->
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="price" name="price" value="{{ room.price }}">
+                        </div>
+                    </div>
+
+                    <!-- Size -->
+                    <div class="col-md-6 mb-3">
+                        <label for="size" class="form-label">Size (sq.ft)</label>
+                        <input type="number" class="form-control" id="size" name="size" value="{{ room.size }}">
+                    </div>
+
+                    <!-- Discount -->
+                    <div class="col-md-6 mb-3">
+                        <label for="discount" class="form-label">Discount</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="discount" name="discount" value="{{ room.discount }}">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-6 mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" name="status" id="status">
+                            <option value="1" {% if room.status == '1' %}selected{% endif %}>Available</option>
+                            <option value="2" {% if room.status == '2' %}selected{% endif %}>Not Available</option>
+                        </select>
+                    </div>
+
+                    <!-- Hotel -->
+                    <div class="col-md-6 mb-3">
+                        <label for="hotel" class="form-label">Hotel Location</label>
+                        <select class="form-select" id="hotel" name="hotel">
+                            {% for hotel in hotels %}
+                            <option value="{{ hotel.id }}" {% if hotel.id == room.hotel.id %}selected{% endif %}>
+                                {{ hotel.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12 mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ room.description }}</textarea>
+                    </div>
+
+                    <!-- Heading -->
+                    <div class="col-12 mb-3">
+                        <label for="heading" class="form-label">Heading</label>
+                        <input type="text" class="form-control" id="heading" name="heading" value="{{ room.heading }}">
+                    </div>
+
+                    <!-- Food Facility -->
+                    <div class="col-md-6 mb-3">
+                        <label for="food_facility" class="form-label">Food Facility</label>
+                        <select class="form-select" name="food_facility" id="food_facility">
+                            <option value="1" {% if room.food_facility %}selected{% endif %}>Yes</option>
+                            <option value="0" {% if not room.food_facility %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Parking -->
+                    <div class="col-md-6 mb-3">
+                        <label for="parking" class="form-label">Parking</label>
+                        <select class="form-select" name="parking" id="parking">
+                            <option value="1" {% if room.parking %}selected{% endif %}>Yes</option>
+                            <option value="0" {% if not room.parking %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Images -->
+                    <div class="col-md-4 mb-3">
+                        <label for="image1" class="form-label">Image 1</label>
+                        <input type="file" class="form-control" id="image1" name="image1">
+                        {% if room.image1 %}
+                        <img src="{{ room.image1.url }}" alt="Image 1" class="img-fluid mt-2" width="100">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="image2" class="form-label">Image 2</label>
+                        <input type="file" class="form-control" id="image2" name="image2">
+                        {% if room.image2 %}
+                        <img src="{{ room.image2.url }}" alt="Image 2" class="img-fluid mt-2" width="100">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="image3" class="form-label">Image 3</label>
+                        <input type="file" class="form-control" id="image3" name="image3">
+                        {% if room.image3 %}
+                        <img src="{{ room.image3.url }}" alt="Image 3" class="img-fluid mt-2" width="100">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+
+
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Room</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Animation for checkboxes */
+        .checkbox-animated input[type="checkbox"]:not(:checked),
+        .checkbox-animated input[type="checkbox"]:checked {
+            visibility: hidden;
+        }
+
+        .checkbox-animated input[type="checkbox"]:checked + .checkmark,
+        .checkbox-animated input[type="checkbox"]:not(:checked) + .checkmark {
+            visibility: visible;
+        }
+
+        .checkbox-animated {
+            display: inline-block;
+            position: relative;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            background-color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkbox-animated input[type="checkbox"]:checked + .checkmark {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Hotel name dropdown animation */
+        select {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="header">
+        <h1 class="m-0 text-center bg-warning my-0 py-3">Edit Room</h1>
+    </div>
+
+    <div class="container">
+        <div class="form-container bg-white">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="roomid" value="{{ room.id }}">
+                
+
+                <div class="row">
+                    <!-- Room Number -->
+                    <div class="col-md-6 mb-3">
+                        <label for="roomnumber" class="form-label">Room Number</label>
+                        <input type="number" class="form-control" id="roomnumber" name="roomnumber" value="{{ form.instance.room_number }}" disabled>
+                    </div>
+
+                    <!-- Room Type -->
+                    <!-- Room Type -->
+                    <div class="col-md-6 mb-3">
+                        <label for="roomtype" class="form-label">Room Type</label>
+                        <select class="form-select" name="roomtype" id="roomtype">
+                            <option value="1" {% if form.instance.room_type == '1' %}selected{% endif %}>Premium</option>
+                            <option value="2" {% if form.instance.room_type == '2' %}selected{% endif %}>Deluxe</option>
+                            <option value="3" {% if form.instance.room_type == '3' %}selected{% endif %}>Basic</option>
+                        </select>
+                    </div>
+
+                    <!-- Capacity -->
+                    <div class="col-md-6 mb-3">
+                        <label for="capacity" class="form-label">Capacity</label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" value="{{ form.instance.room_type }}capacity }}">
+                    </div>
+
+                    <!-- Check-In Time -->
+                    <div class="col-md-6 mb-3">
+                        <label for="check_in_time" class="form-label">Check-In Time</label>
+                        <input type="time" class="form-control" id="check_in_time" name="check_in_time" value="{{ form.instance.room_type }}check_in_time|default_if_none:'' }}">
+                    </div>
+
+                    <!-- Check-Out Time -->
+                    <div class="col-md-6 mb-3">
+                        <label for="check_out_time" class="form-label">Check-Out Time</label>
+                        <input type="time" class="form-control" id="check_out_time" name="check_out_time" value="{{ form.instance.room_type }}check_out_time|default_if_none:'' }}">
+                    </div>
+
+                    <!-- Price -->
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="price" name="price" value="{{ form.instance.room_type }}price }}">
+                        </div>
+                    </div>
+
+                    <!-- Size -->
+                    <div class="col-md-6 mb-3">
+                        <label for="size" class="form-label">Size (sq.ft)</label>
+                        <input type="number" class="form-control" id="size" name="size" value="{{ form.instance.room_type }}size }}">
+                    </div>
+
+                    <!-- Discount -->
+                    <div class="col-md-6 mb-3">
+                        <label for="discount" class="form-label">Discount</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="discount" name="discount" value="{{ form.instance.room_type }}discount }}">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-6 mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" name="status" id="status">
+                            <option value="1" {% if form.instance.status == '1' %}selected{% endif %}>Available</option>
+                            <option value="2" {% if form.instance.status == '2' %}selected{% endif %}>Not Available</option>
+                        </select>
+                    </div>
+
+
+                    <!-- Hotel -->
+                    <div class="col-md-6 mb-3">
+                        <label for="hotel" class="form-label">Hotel Location</label>
+                        <select class="form-select" id="hotel" name="hotel">
+                            {% for hotel in hotels %}
+                            <option value="{{ hotel.id }}" {% if hotel.id == form.instance.hotel.id %}selected{% endif %}>
+                                {{ hotel.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12 mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ form.instance.room_type }}description }}</textarea>
+                    </div>
+
+                    <!-- Heading -->
+                    <div class="col-12 mb-3">
+                        <label for="heading" class="form-label">Heading</label>
+                        <input type="text" class="form-control" id="heading" name="heading" value="{{ form.instance.room_type }}heading }}">
+                    </div>
+
+                    <!-- Food Facility -->
+                    <div class="col-md-6 mb-3">
+                        <label for="food_facility" class="form-label">Food Facility</label>
+                        <select class="form-select" name="food_facility" id="food_facility">
+                            <option value="1" {% if form.instance.food_facility %}selected{% endif %}>Yes</option>
+                            <option value="0" {% if not form.instance.food_facility %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Parking -->
+                    <div class="col-md-6 mb-3">
+                        <label for="parking" class="form-label">Parking</label>
+                        <select class="form-select" name="parking" id="parking">
+                            <option value="1" {% if form.instance.parking %}selected{% endif %}>Yes</option>
+                            <option value="0" {% if not form.instance.parking %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+
+                    <!-- Images -->
+                    <div class="col-md-4 mb-3">
+                        <label for="image1" class="form-label">Image 1</label>
+                        <input type="file" class="form-control" id="image1" name="image1">
+                        {% if form.instance.image1 %}
+                        <img src="{{ form.instance.image1.url }}" alt="Image 1" class="img-fluid mt-2" width="100">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="image2" class="form-label">Image 2</label>
+                        <input type="file" class="form-control" id="image2" name="image2">
+                        {% if form.instance.image2 %}
+                        <img src="{{ form.instance.image2.url }}" alt="Image 2" class="img-fluid mt-2" width="100">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="image3" class="form-label">Image 3</label>
+                        <input type="file" class="form-control" id="image3" name="image3">
+                        {% if form.instance.image3 %}
+                        <img src="{{ form.instance.image3.url }}" alt="Image 3" class="img-fluid mt-2" width="100">
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+
+
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Room</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Animation for checkboxes */
+        .checkbox-animated input[type="checkbox"]:not(:checked),
+        .checkbox-animated input[type="checkbox"]:checked {
+            visibility: hidden;
+        }
+
+        .checkbox-animated input[type="checkbox"]:checked + .checkmark,
+        .checkbox-animated input[type="checkbox"]:not(:checked) + .checkmark {
+            visibility: visible;
+        }
+
+        .checkbox-animated {
+            display: inline-block;
+            position: relative;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            background-color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .checkbox-animated input[type="checkbox"]:checked + .checkmark {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Hotel name dropdown animation */
+        select {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="header">
+        <h1 class="m-0 text-center bg-warning my-0 py-3">Edit Room</h1>
+    </div>
+
+    <div class="container">
+        <div class="form-container bg-white">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="roomid" value="{{ room.id }}">
+
+                <div class="row">
+                    <!-- Room Number (read-only) -->
+                    <div class="col-md-6 mb-3">
+                        <label for="roomnumber" class="form-label">Room Number</label>
+                        <input type="number" class="form-control" id="roomnumber" name="roomnumber" value="{{ form.instance.room_number }}" disabled>
+                    </div>
+                    
+
+                    <!-- Render all form fields dynamically -->
+                    {{ form.as_p }}
+
+                </div>
+
+                <!-- Display form errors -->
+                <div class="text-danger">
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <div>
+                                <strong>{{ field.label }}:</strong>
+                                <ul>
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>

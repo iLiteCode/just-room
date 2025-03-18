@@ -1,0 +1,49 @@
+{% extends 'basic.html' %} 
+{% block title %}Dashboard {% endblock title %} 
+
+{% block body %}
+{% load app_tags %}
+<h3 class="text-center text-success">My Bookings</h3>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>User</th>
+                <th>Room Number</th>
+                <th>Room Type</th>
+                <th>Hotel Location</th>
+                <th>Capacity</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Price per Night</th>
+                <th>Discount (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if bookings %}
+            {% for each_booking in bookings %}
+            {% with current_date=current_date %}
+            <tr style="background-color: {% if each_booking.check_out < current_date %}red{% else %}green{% endif %};">
+                <td>{{ each_booking.guest.username }}</td>
+                <td>{{ each_booking.room.room_number }}</td>
+                <td>{{ each_booking.room.get_room_type_display }}</td>
+                <td>{{ each_booking.room.hotel.location }}</td>
+                <td>{{ each_booking.room.capacity }}</td>
+                <td>{{ each_booking.check_in }}</td>
+                <td>{{ each_booking.check_out }}</td>
+                <td>${{ each_booking.room.price }}</td>
+                <td>{{ each_booking.room.discount }}</td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="10" class="text-center">No bookings available</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock body %}
