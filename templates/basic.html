@@ -1,0 +1,136 @@
+{% load static %}
+{% load app_tags %}
+
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {% block title %}
+    {% endblock title %}
+    {%load static%}
+    </title>
+
+    <!--Cdn links for bootstrap-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'bootstrap\bootstrap.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" >
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <link rel="favicon" href="{%static ''}" type="image/gif" sizes="16x16">
+    {% block css %}
+    {% endblock css %}
+    <style>
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body style="dbackground-image: url('https://source.unsplash.com/random');height: 100%;">
+    <!--Header Section starts here-->
+    <div class="container-fluid px-0">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary font-weight-bold">
+            <a class="navbar-brand text-bold bg-black " href="/"><i class="fas fa-hotel text-warning"></i><b>Hotel Krishna</b></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse " id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto ">
+                    <li class="nav-item active">
+                        <a class="nav-link text-bold " href="/home"> Home</a>
+                    </li>
+                    {% if user.is_staff %}
+                    <li class="nav-item active">
+                        <a class="nav-link text-bold" href="/staff/panel">Dashboard </a>
+                    </li>
+                    {% elif user.is_staff == False and user.is_authenticated %}
+                    <li class="nav-item active">
+                            <a class="nav-link text-bold" href="/user/bookings">My Bookings </a>
+                        </li>
+                    
+                    
+                    {% endif %}
+                    {% if user.is_staff %}
+                    <li class="nav-item active">
+                            <a class="nav-link text-bold" href="{%url 'allbookings' %}"}>All Bookings </a>
+                        </li>
+                    {% endif %}
+                    
+
+                    {% if user.is_staff %}
+                    <li class="nav-item active">
+                            <a class="nav-link text-bold" href="{%url 'allbookings' %}"}>tryle </a>
+                        </li>
+                    {% endif %}
+                    
+                    
+                        
+                    <li class="nav-item active">
+                        <a class="nav-link text-bold" href="/about">About</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link text-bold" href="/contact">Contact </a>
+                    </li>
+                    
+                    
+                   
+                </ul>
+                {% if user.is_authenticated %}
+                      <button class="btn btn-group bg-light" data-toggle="modal" data-target="#forlogin">
+                       Hello, {{request.user}}
+                       <a href="{% url 'user:logout_view' %}" class="nav-link">
+                    <button class="btn btn-group bg-warning" data-toggle="modal" data-target="#forlogin">
+                        Logout
+                    </button></a>&nbsp; &nbsp;
+                    </button>
+                
+                {% else %}
+                   
+                    <a href="{% url 'user:signin' %}" class="nav-link">
+                    <button class="btn btn-group bg-warning font-weight-bold" data-toggle="modal" data-target="#forlogin">
+                        User Login
+                    </button></a>
+                <a href="{% url 'user:staff_signin' %}" class="nav-link">
+                    <button class="btn btn-group bg-warning font-weight-bold">
+                        Staff Login
+                    </button></a>
+                {% endif %}
+
+               
+            </div>
+        </nav>
+    </div>
+    <!--Header Section Ends here-->
+    
+    
+    
+        {% for message in messages %}
+             <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+             </button>
+            </div>
+        {% endfor %}
+    
+    {% block body %}
+    
+    {% endblock body %}
+        
+   
+    
+
+
+
+
+
+    
+</body>
+{% block js %}
+{% endblock js %}
+</html>

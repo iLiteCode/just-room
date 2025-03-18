@@ -1,0 +1,256 @@
+<head>
+    <title>Hotel Booking</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      html {
+        zoom: 100.795918367346935% !important; 
+      }
+      body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+      }
+      .header {
+        background-color: #f8d7da;
+        text-align: center;
+        padding: 10px;
+        font-size: 18px;
+        color: #721c24;
+      }
+      .sub-header {
+        background-color: #f8d7da;
+        text-align: center;
+        padding: 5px;
+        font-size: 16px;
+        color: #721c24;
+      }
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 20px;
+      }
+      .left-column, .right-column {
+        background-color: #fff;
+        padding: 20px;
+        margin: 10px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .left-column {
+        flex: 2;
+        max-width: 60%;
+      }
+      .right-column {
+        flex: 1;
+        max-width: 35%;
+      }
+      .main-image img {
+        width: 100%;
+        border-radius: 8px;
+      }
+      .thumbnail-images {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .thumbnail-images img {
+        width: 100px;
+        height: 100px;
+        border-radius: 8px;
+      }
+      .description {
+        margin-top: 20px;
+      }
+      .description h2 {
+        color: green;
+      }
+      .facilities, .charges, .important-info {
+        margin-top: 20px;
+      }
+      .facilities h3, .charges h3, .important-info h3 {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 8px;
+      }
+      .facilities ul, .charges ul, .important-info ul {
+        list-style: none;
+        padding: 0;
+      }
+      .facilities ul li, .charges ul li, .important-info ul li {
+        padding: 5px 0;
+      }
+      .facilities ul li i, .charges ul li i, .important-info ul li i {
+        margin-right: 10px;
+      }
+      .amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .amenities div {
+        flex: 1 1 30%;
+        display: flex;
+        align-items: center;
+      }
+      .amenities div i {
+        margin-right: 10px;
+      }
+      .login-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+      .login-section .login-button {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .price-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+      .price-section .price {
+        font-size: 24px;
+        color: green;
+      }
+      .price-section .discount {
+        text-decoration: line-through;
+        color: red;
+      }
+      .price-section .continue-button {
+        background-color: green;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      @media (max-width: 768px) {
+        .left-column, .right-column {
+          max-width: 100%;
+          flex: 1 1 100%;
+        }
+        .thumbnail-images img {
+          width: 70px;
+          height: 70px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      WE PROVIDE PICKUP AND DROP SERVICE WITH GUIDE
+    </div>
+    <div class="sub-header">
+      Pandharpur-Shri Vitthal Rukmini Bhakta Niwas
+    </div>
+    <div class="container">
+      <div class="left-column">
+        <div class="main-image">
+          <img alt="Main room image with a double bed, chairs, and a balcony view of the city" height="400" src="https://storage.googleapis.com/a1aa/image/EpwV98zYS5aefUflQ6ekKitMstPM13ERbhounvYSJeQHii6gC.jpg" width="800">
+        </div>
+        <div class="thumbnail-images">
+          <img alt="Thumbnail image 1" height="100" src="https://storage.googleapis.com/a1aa/image/UQ0YJYR8ttJEEphkUvPbks0SQdEOnU5lKNWZo4tP7dQCF1BF.jpg" width="100">
+          <img alt="Thumbnail image 2" height="100" src="https://storage.googleapis.com/a1aa/image/aOOyog2D3jbhBdoVUsEkkBGyNdywDsXWXCV3qknq3riBF1BF.jpg" width="100">
+          <img alt="Thumbnail image 3" height="100" src="https://storage.googleapis.com/a1aa/image/ok20aukG9fRtOCrcEYqGNmRwfv8bKX4kiTQgXAFtd4ZEUUHUA.jpg" width="100">
+          <img alt="Thumbnail image 4" height="100" src="https://storage.googleapis.com/a1aa/image/G7kRUIv2J67FPlsf4EscCFKyRfUfrtLp6vmcIbj9FyJFooOoA.jpg" width="100">
+          <img alt="Thumbnail image 5" height="100" src="https://storage.googleapis.com/a1aa/image/jjuuwuqcMCZmFRSvISTmWbRoeisDPv3TfDemWcyQZAr9noOoA.jpg" width="100">
+          <img alt="Thumbnail image 6" height="100" src="https://storage.googleapis.com/a1aa/image/oHDkH1BBEMIROBJBSycFqkSSTTCVaXHecOMgBrKgnbfSUUHUA.jpg" width="100">
+          <img alt="Thumbnail image 7" height="100" src="https://storage.googleapis.com/a1aa/image/lJeq1ofowGuCoEJfofOnpaxkFXBbMll9CgWOqxlLHSuCQRdQB.jpg" width="100">
+          <img alt="Thumbnail image 8" height="100" src="https://storage.googleapis.com/a1aa/image/fMGPMmLgFTTIcKk2kwA5tq5kGNqfO19fTm62qhgr8jSUooOoA.jpg" width="100">
+          <img alt="Thumbnail image 9" height="100" src="https://storage.googleapis.com/a1aa/image/Oa9DcbWMRO6tGZODjwD4fi2GSHUDsduez8csXeiNm66booOoA.jpg" width="100">
+          <img alt="Thumbnail image 10" height="100" src="https://storage.googleapis.com/a1aa/image/A2VGPrAW06YbFtFPSEBzSZm3WpNfemReeR8UNfe9rHyCDF1BF.jpg" width="100">
+          <img alt="Thumbnail image 11" height="100" src="https://storage.googleapis.com/a1aa/image/ne1M6kQthZQoDyWmUwFHMQSdqMT4qc85at9xu6cEqEuDKqDKA.jpg" width="100">
+          <img alt="Thumbnail image 12" height="100" src="https://storage.googleapis.com/a1aa/image/ekpMhTjmOkwYA6eOtMTuYNfFM8xIieLnaEkITVmk2eF8hi6gC.jpg" width="100">
+        </div>
+      </div>
+      <div class="right-column">
+        <div class="description">
+          <h2>Description</h2>
+          <p>
+            Room Size 100 sq.ft. Double Bed
+            <br>
+            One Window & One Balcony, Attached Western Toilet, Wash Basin, Two Chair & Table
+          </p>
+        </div>
+        <div class="facilities">
+          <h3>Facilities</h3>
+          <ul>
+            <li><i class="fas fa-check-circle"></i>Luxury Room</li>
+            <li><i class="fas fa-check-circle"></i>Tips</li>
+            <li><i class="fas fa-check-circle"></i>Budget Room</li>
+            <li><i class="fas fa-check-circle"></i>Ecorik</li>
+          </ul>
+        </div>
+        <div class="charges">
+          <h3>Charges</h3>
+          <ul>
+            <li>Room Charges: Rs. 1500/- (Ex GST)</li>
+            <li>Extra Person Charge: Rs. 500/- (Ex GST)</li>
+          </ul>
+        </div>
+        <div class="important-info">
+          <h3>Important Information</h3>
+          <ul>
+            <li>Check-in: 3 PM Check-out: 12 PM</li>
+            <li>Languages Spoken by Staff: English, Hindi and Marathi</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="left-column">
+        <div class="amenities">
+          <div><i class="fas fa-bed"></i>Comfortable Bed</div>
+          <div><i class="fas fa-bath"></i>Private Bathroom</div>
+          <div><i class="fas fa-wifi"></i>Wi-Fi</div>
+          <div><i class="fas fa-snowflake"></i>AC</div>
+          <div><i class="fas fa-fan"></i>Fan</div>
+          <div><i class="fas fa-fire"></i>Heater</div>
+          <div><i class="fas fa-broom"></i>Cleanliness (Regular)</div>
+          <div><i class="fas fa-lock"></i>Safety & Security</div>
+          <div><i class="fas fa-tv"></i>Entertainment Options</div>
+          <div><i class="fas fa-tshirt"></i>Laundry Facility</div>
+          <div><i class="fas fa-umbrella-beach"></i>Outdoor Balcony</div>
+          <div><i class="fas fa-parking"></i>Parking Area</div>
+          <div><i class="fas fa-utensils"></i>Food Facility</div>
+          <div><i class="fas fa-map-marker-alt"></i>Convenient Location</div>
+          <div><i class="fas fa-concierge-bell"></i>Concierge Service</div>
+        </div>
+      </div>
+      <div class="right-column">
+        <div class="login-section">
+          <div>
+            <button class="login-button">LOGIN</button>
+          </div>
+          <div>
+            <span class="price">1497</span>
+            <span class="discount">1735</span>
+          </div>
+        </div>
+        <div class="price-section">
+          <div>
+            <p>
+              inclusive of all taxes
+              <br>
+              Mon, 7 Aug – Thu, 10 Aug | 1 Room, 2 Guests
+            </p>
+          </div>
+          <div>
+            <button class="continue-button">Continue to Book</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>

@@ -1,0 +1,699 @@
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+        <title>Room 101 - Pandharpur</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet"/>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+        
+<style>
+            body {
+                font-family: 'Roboto', sans-serif;
+            }
+    
+            .header-banner {
+                background-color: #FFE4E1;
+                padding: 15px 0;
+                text-align: center;
+            }
+            
+            .room-title {
+                text-align: center;
+                margin: 20px 0;
+                font-size: 2rem;
+                animation: fadeInDown 1s;
+            }
+            
+            .main-image {
+                width: 100%;
+                height: 400px;
+                object-fit: cover;
+                margin-bottom: 15px;
+                transition: transform 1s;
+            }
+            
+            .thumbnail-gallery {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .thumbnail {
+                width: 100%;
+                height: 80px;
+                object-fit: cover;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            
+            .thumbnail:hover {
+                transform: scale(1.05);
+            }
+            
+            .description h2 {
+                color: #008000;
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .amenities-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .amenity-icon {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .amenity-icon img {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .footer-banner {
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .price-section {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .current-price {
+                font-size: 24px;
+                font-weight: bold;
+            }
+            
+            .original-price {
+                text-decoration: line-through;
+                color: #666;
+            }
+            
+            .discount {
+                color: green;
+            }
+            
+            .login-button {
+                background-color: #ff6b6b;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            
+            .book-button {
+                background-color: #28a745;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                width: 100%;
+                cursor: pointer;
+            }
+    
+            @keyframes fadeInDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+                body {
+                    font-family: 'Roboto', sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f5f5f5;
+                }
+            
+            .header, .sub-header {
+                background-color: #f8d7da;
+                text-align: center;
+                padding: 10px;
+                font-size: 40px;
+                color: #721c24;
+                animation: fadeIn 2s ease-in-out, bounce 3s infinite alternate;
+            }
+
+            /* Keyframe for Fade-in Animation */
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            /* Keyframe for Bounce Animation */
+            @keyframes bounce {
+                0% {
+                    transform: translateY(0);
+                }
+                100% {
+                    transform: translateY(-20px);
+                }
+            }
+
+                .sub-header {
+                    font-size: 16px;
+                }
+                .container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    padding: 0;
+                    margin: 0;
+                    box-sizing: border-box;
+                    width: 100%;
+                    max-width: 100%;
+                }
+                .left-column, .right-column {
+                    background-color: #fff;
+                    padding: 20px;
+                    margin: 10px;
+                    border-radius: 8px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }
+                .left-column {
+                    flex: 2;
+                    max-width: 60%;
+                }
+                .right-column {
+                    flex: 1;
+                    max-width: 35%;
+                }
+                .main-image img {
+                    width: 100%;
+                    border-radius: 8px;
+                }
+                
+                .thumbnail-images {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            gap: 10px; /* Default gap for all devices */
+            justify-content: center; /* Default alignment */
+        }
+
+        /* Mobile (max-width: 719px) */
+        @media (max-width: 719px) {
+            .thumbnail-images {
+                gap: 12px; /* Adjust gap for smaller screens */
+                justify-content: center; /* Center images on small devices */
+            }
+            
+            .thumbnail-images img {
+                width: 70px; /* Smaller image size for mobile */
+                height: 70px;
+            }
+        }
+
+        /* Tablet (720px - 1019px) */
+        @media (min-width: 720px) and (max-width: 1019px) {
+            .thumbnail-images {
+                gap: 20px; /* Adjust gap for tablets */
+                justify-content: space-between; /* Even distribution */
+            }
+            
+            .thumbnail-images img {
+                width: 120px; /* Slightly larger size for tablets */
+                height: 120px;
+            }
+        }
+
+        /* Desktop (1020px and above) */
+        @media (min-width: 1020px) {
+            .thumbnail-images {
+                gap: 25px; /* Balanced gap for desktops */
+                /* justify-content: space-between; Maintain even distribution */
+            }
+            
+            
+        }
+
+        /* General Styling for Images */
+        .thumbnail-images img {
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Hover Effects */
+        .thumbnail-images img:hover {
+            transform: scale(1.1); /* Enlarge on hover */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect */
+        }
+
+        .description, .facilities, .charges, .important-info {
+            margin-top: 20px;
+        }
+        .description h2, .facilities h3, .charges h3, .important-info h3 {
+            color: green;
+        }
+        .facilities ul, .charges ul, .important-info ul {
+            list-style: none;
+            padding: 0;
+        }
+        .facilities ul li, .charges ul li, .important-info ul li {
+            padding: 5px 0;
+        }
+        .facilities ul li i, .charges ul li i, .important-info ul li i {
+            margin-right: 10px;
+            color: green;
+        }
+        .amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 760px) {
+            .amenities {
+                
+                gap: 19px;
+                margin-top: 14px;
+            }
+        }
+        
+        .amenities div {
+            flex: 1 1 30%;
+            display: flex;
+            align-items: center;
+        }
+        .amenities div i {
+            margin-right: 10px;
+            color: #ff6b6b;
+        }
+        .login-section, .price-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .login-button, .continue-button, .book-button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .continue-button {
+            background-color: green;
+        }
+        .book-button {
+            background-color: #28a745;
+            width: 100%;
+        }
+        .price-section .price {
+            font-size: 24px;
+            color: green;
+        }
+        .price-section .discount {
+            text-decoration: line-through;
+            color: red;
+        }
+        @media (max-width: 768px) {
+            .left-column, .right-column {
+                max-width: 100%;
+                flex: 1 1 100%;
+            }
+            .thumbnail-images img {
+                width: 70px;
+                height: 70px;
+            }
+        }
+        .footer-banner {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+        .footer-banner .price-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .footer-banner .current-price {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .footer-banner .original-price {
+            text-decoration: line-through;
+            color: #666;
+        }
+        .footer-banner .discount {
+            color: green;
+        }
+        .footer-banner .login-button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .footer-banner .book-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .footer-grid {
+                display: grid
+            ;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 21px;
+                padding: 20px 0px;
+                width: 100%;
+                max-width: 96%;
+                margin: 0 auto;
+            }
+
+        .footer-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgb(18 15 15 / 97%);
+            padding: 20px;
+            height: 100%;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .footer-card:nth-child(1) { animation-delay: 0.1s; }
+        .footer-card:nth-child(2) { animation-delay: 0.2s; }
+        .footer-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .price-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .current-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .discount {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .offers-section {
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+            margin: 15px 0;
+        }
+
+        .offer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            border: none;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-button {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .offers-button {
+            background-color: white;
+            color: #007bff;
+            border: 1px solid #007bff;
+        }
+
+        .book-button {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .summary-text {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .summary-price {
+            font-size: 28px;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        @media (max-width: 992px) {
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+      
+
+        @media (max-width: 768px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-card {
+                min-height: auto;
+            }
+        }
+</style>
+</head>
+<body>
+    <div class="header">
+        WE PROVIDE PICKUP AND DROP SERVICE WITH GUIDE
+    </div>
+    <div class="sub-header">
+        Pandharpur-Shri Vitthal Rukmini Bhakta Niwas
+    </div>
+    <div class="container">
+        <div class="left-column">
+            <div class="main-image">
+                <img id="mainImage" alt="Main room image with a double bed, chairs, and a balcony view of the city" height="400" src="https://storage.googleapis.com/a1aa/image/EpwV98zYS5aefUflQ6ekKitMstPM13ERbhounvYSJeQHii6gC.jpg" width="800"/>
+            </div>
+            <div class="thumbnail-images">
+                <img alt="Thumbnail image 1" height="100" src="https://storage.googleapis.com/a1aa/image/UQ0YJYR8ttJEEphkUvPbks0SQdEOnU5lKNWZo4tP7dQCF1BF.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 2" height="100" src="https://storage.googleapis.com/a1aa/image/aOOyog2D3jbhBdoVUsEkkBGyNdywDsXWXCV3qknq3riBF1BF.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 3" height="100" src="https://storage.googleapis.com/a1aa/image/ok20aukG9fRtOCrcEYqGNmRwfv8bKX4kiTQgXAFtd4ZEUUHUA.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 4" height="100" src="https://storage.googleapis.com/a1aa/image/G7kRUIv2J67FPlsf4EscCFKyRfUfrtLp6vmcIbj9FyJFooOoA.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 5" height="100" src="https://storage.googleapis.com/a1aa/image/jjuuwuqcMCZmFRSvISTmWbRoeisDPv3TfDemWcyQZAr9noOoA.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 6" height="100" src="https://storage.googleapis.com/a1aa/image/oHDkH1BBEMIROBJBSycFqkSSTTCVaXHecOMgBrKgnbfSUUHUA.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 7" height="100" src="https://storage.googleapis.com/a1aa/image/lJeq1ofowGuCoEJfofOnpaxkFXBbMll9CgWOqxlLHSuCQRdQB.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 8" height="100" src="https://storage.googleapis.com/a1aa/image/fMGPMmLgFTTIcKk2kwA5tq5kGNqfO19fTm62qhgr8jSUooOoA.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 9" height="100" src="https://storage.googleapis.com/a1aa/image/Oa9DcbWMRO6tGZODjwD4fi2GSHUDsduez8csXeiNm66booOoA.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 10" height="100" src="https://storage.googleapis.com/a1aa/image/A2VGPrAW06YbFtFPSEBzSZm3WpNfemReeR8UNfe9rHyCDF1BF.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 11" height="100" src="https://storage.googleapis.com/a1aa/image/ne1M6kQthZQoDyWmUwFHMQSdqMT4qc85at9xu6cEqEuDKqDKA.jpg" width="100" onclick="changeImage(this.src)"/>
+                <img alt="Thumbnail image 12" height="100" src="https://storage.googleapis.com/a1aa/image/ekpMhTjmOkwYA6eOtMTuYNfFM8xIieLnaEkITVmk2eF8hi6gC.jpg" width="100" onclick="changeImage(this.src)"/>
+                
+            </div>
+        </div>
+        <div class="right-column">
+            <div class="description">
+                <h2>Description</h2>
+                <p>
+                    Room Size 100 sq.ft. Double Bed
+                    <br/>
+                    One Window &amp; One Balcony, Attached Western Toilet, Wash Basin, Two Chair &amp; Table
+                </p>
+            </div>
+            <div class="facilities">
+                <h3>Facilities</h3>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i> Luxury Room</li>
+                    <li><i class="fas fa-check-circle"></i> Tips</li>
+                    <li><i class="fas fa-check-circle"></i> Budget Room</li>
+                    <li><i class="fas fa-check-circle"></i> Ecorik</li>
+                </ul>
+            </div>
+            <div class="charges">
+                <h3>Charges</h3>
+                <ul>
+                    <li>Room Charges: Rs. 1500/- (Ex GST)</li>
+                    <li>Extra Person Charge: Rs. 500/- (Ex GST)</li>
+                </ul>
+            </div>
+            <div class="important-info">
+                <h3>Important Information</h3>
+                <ul>
+                    <li>Check-in: 3 PM Check-out: 12 PM</li>
+                    <li>Languages Spoken by Staff: English, Hindi and Marathi</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="left-column">
+            <div class="amenities">
+                <div><i class="fas fa-bed"></i> Comfortable Bed</div>
+                <div><i class="fas fa-bath"></i> Private Bathroom</div>
+                <div><i class="fas fa-wifi"></i> Wi-Fi</div>
+                <div><i class="fas fa-snowflake"></i> AC</div>
+                <div><i class="fas fa-fan"></i> Fan</div>
+                <div><i class="fas fa-fire"></i> Heater</div>
+                <div><i class="fas fa-broom"></i> Cleanliness (Regular)</div>
+                <div><i class="fas fa-lock"></i> Safety &amp; Security</div>
+                <div><i class="fas fa-tv"></i> Entertainment Options</div>
+                <div><i class="fas fa-tshirt"></i> Laundry Facility</div>
+                <div><i class="fas fa-umbrella-beach"></i> Outdoor Balcony</div>
+                <div><i class="fas fa-parking"></i> Parking Area</div>
+                <div><i class="fas fa-utensils"></i> Food Facility</div>
+                <div><i class="fas fa-map-marker-alt"></i> Convenient Location</div>
+                <div><i class="fas fa-concierge-bell"></i> Concierge Service</div>
+            </div>
+        </div>
+        <div class="right-column">
+            <div class="login-section">
+                <div>
+                    <button class="login-button">LOGIN</button>
+                </div>
+                <div>
+                    <span class="price">1497</span>
+                    <span class="discount">1735</span>
+                </div>
+            </div>
+            
+            <div class="price-section">
+                <div>
+                    <p>
+                        inclusive of all taxes
+                        <br/>
+                        Mon, 7 Aug – Thu, 10 Aug | 1 Room, 2 Guests
+                    </p>
+                </div>
+                <div>
+                    <button class="continue-button">Continue to Book</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+    <div class="footer-grid">
+        <div class="footer-card">
+            <div>
+                <button class="action-button login-button">LOGIN NOW TO GET UPTO 15% LOWER PRICES</button>
+                <div class="price-info">
+                    <span class="current-price">₹1,497</span>
+                    <span class="original-price">₹ 11,336</span>
+                    <span class="discount">86% off</span>
+                </div>
+                <div class="text-muted">
+                    <small>inclusive of all taxes</small>
+                    <br>
+                    <small>Mon, 7 Aug – Thu, 10 Aug | 1 Room, 2 Guests</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-card">
+            <div>
+                <div class="offer-row">
+                    <span>OMOIND12 coupon applied</span>
+                    <span class="text-danger">- ₹6,439</span>
+                </div>
+                <button class="action-button offers-button">MORE OFFERS</button>
+                <div class="offers-section">
+                    <div class="offer-row">
+                        <span>Save 5% with Wizard membership</span>
+                        <span class="text-danger">- ₹74</span>
+                    </div>
+                    <div class="offer-row">
+                        <span>Wizard Blue membership charge</span>
+                        <span>+ ₹74</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-card">
+            <div>
+                <div class="summary-text">
+                    <p>Your savings</p>
+                    <div class="summary-price">₹6,439</div>
+                    <p>Total price: ₹1,497</p>
+                </div>
+                <button class="action-button book-button">Continue to Book</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        function changeImage(src) {
+            document.getElementById('mainImage').src = src;
+        }
+
+        
+    </script>
+    <script>
+        const header = document.querySelector('.header');
+        const subHeader = document.querySelector('.sub-header');
+    
+        setTimeout(() => {
+            header.textContent = 'Explore Endless Possibilities!';
+            subHeader.textContent = 'WE PROVIDE PICKUP AND DROP SERVICE WITH GUIDE';
+        }, 4000); // Change text after 4 seconds
+    </script>
+    
+</body>
+</html>
