@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Staff Profile</title>
+</head>
+<body>
+    <h1>Edit Staff Profile</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="name">Name:</label>
+        <input type="text" name="name" value="{{ user.name }}" required><br>
+        <label for="phone">Phone:</label>
+        <input type="text" name="phone" value="{{ user.phone }}" required><br>
+        <label for="email">Email:</label>
+        <input type="email" name="email" value="{{ user.email }}" required><br>
+        <label for="department">Department:</label>
+        <select name="department" required>
+            <option value="reception" {% if staff.department == 'reception' %}selected{% endif %}>Reception</option>
+            <option value="housekeeping" {% if staff.department == 'housekeeping' %}selected{% endif %}>Housekeeping</option>
+            <option value="management" {% if staff.department == 'management' %}selected{% endif %}>Management</option>
+            <option value="kitchen" {% if staff.department == 'kitchen' %}selected{% endif %}>Kitchen</option>
+        </select><br>
+        <label for="is_active_staff">Active Staff:</label>
+        <input type="checkbox" name="is_active_staff" {% if staff.is_active_staff %}checked{% endif %}><br>
+        <button type="submit">Save</button>
+    </form>
+    <a href="{% url 'user:staff_profile' %}">Back to Profile</a>
+</body>
+</html>
