@@ -398,32 +398,80 @@
             </style>            
             <div class="main-content">
                 <div class="profile-section">
-                    <img src="https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg" alt="Profile" class="round-img">
+                    {% if user.profile_image %}
+                        <img src="{{ user.profile_image.url }}" alt="Profile" class="round-img">
+                    {% else %}
+                        <img src="https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg" alt="Profile" class="round-img">
+                    {% endif %}
                     <h2>My Profile</h2>
-                    <form>
+            
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="message-{% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+            
+                    <!-- User Profile Display -->
+                    <div class="profile-details" style="margin-bottom: 20px;">
+                        <p><strong>Username:</strong> {{ user.username }}</p>
+                        <p><strong>Paid Member:</strong> {{ user.paid_member|yesno:"Yes,No" }}</p>
+                        <p><strong>Verified:</strong> {{ user.is_verified|yesno:"Yes,No" }}</p>
+                        {% if user.aadhar_image %}
+                            <p><strong>Aadhar Image:</strong> <a href="{{ user.aadhar_image.url }}" target="_blank">View Image</a></p>
+                        {% endif %}
+                        {% if user.pancard_image %}
+                            <p><strong>Pancard Image:</strong> <a href="{{ user.pancard_image.url }}" target="_blank">View Image</a></p>
+                        {% endif %}
+                    </div>
+            
+                    <!-- Editable Form -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="firstName">First Name</label>
-                                <input type="text" id="firstName" placeholder="Enter Your First Name">
+                                <label for="id_name">Name</label>
+                                <input type="text" name="name" id="id_name" value="{{ user.name }}" placeholder="Enter Your Name" required>
                             </div>
                             <div class="form-group">
-                                <label for="lastName">Last Name</label>
-                                <input type="text" id="lastName" placeholder="Enter Your Last Name">
+                                <label for="id_phone">Phone Number</label>
+                                <input type="tel" name="phone" id="id_phone" value="{{ user.phone }}" placeholder="Enter Your Mobile Number" required>
                             </div>
                         </div>
-                        
+            
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="email">Email-Id</label>
-                                <input type="email" id="email" placeholder="Enter Your EmailID">
+                                <label for="id_email">Email</label>
+                                <input type="email" name="email" id="id_email" value="{{ user.email }}" placeholder="Enter Your Email" required>
                             </div>
                             <div class="form-group">
-                                <label for="phone">Phone Number</label>
-                                <input type="tel" id="phone" placeholder="Enter Your Mobile Number">
+                                <label for="id_profile_image">Profile Image</label>
+                                <input type="file" name="profile_image" id="id_profile_image" accept="image/*">
+                                {% if user.profile_image %}
+                                    <div class="current-image">Current: <a href="{{ user.profile_image.url }}" target="_blank">View Image</a></div>
+                                {% endif %}
                             </div>
                         </div>
-                        
-                        <button type="submit" class="save-btn">Save Change</button>
+            
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="id_aadhar_image">Aadhar Image</label>
+                                <input type="file" name="aadhar_image" id="id_aadhar_image" accept="image/*">
+                                {% if user.aadhar_image %}
+                                    <div class="current-image">Current: <a href="{{ user.aadhar_image.url }}" target="_blank">View Image</a></div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="id_pancard_image">Pancard Image</label>
+                                <input type="file" name="pancard_image" id="id_pancard_image" accept="image/*">
+                                {% if user.pancard_image %}
+                                    <div class="current-image">Current: <a href="{{ user.pancard_image.url }}" target="_blank">View Image</a></div>
+                                {% endif %}
+                            </div>
+                        </div>
+            
+                        <button type="submit" class="save-btn">Save Changes</button>
                     </form>
                 </div>
             </div>

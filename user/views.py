@@ -104,6 +104,7 @@ def staff_verify_email(request, uidb64, token):
 def staff_signin(request):
     if request.user.is_authenticated and request.user.is_staff and request.user.is_active:
         return redirect('/')  # Redirect to staff dashboard if verified
+    
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -119,6 +120,7 @@ def staff_signin(request):
 
         if not user.is_active:
             return render(request, 'staff_login/verification_prompt.html', {'email': username, 'message': 'Your staff account is not verified yet. Please check your email.'})
+        
 
         authenticated_user = authenticate(request, username=username, password=password)
 
@@ -383,50 +385,127 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
 
     # userprofile and staff too bro
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, authenticate
+from django.contrib import messages
+from .models import User, HotelStaff
+import random
 
+def generate_staff_id():
+    while True:
+        staff_id = f"HSTF{random.randint(100, 999)}"
+        if not HotelStaff.objects.filter(staff_id=staff_id).exists():
+            return staff_id
+
+# User Profile View
 def user_profile(request):
-    if not request.user.is_authenticated or request.user.is_staff:
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to view your profile.")
         return redirect('user:signin')
+    
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot access user profiles.")
+        return redirect('user:staff_signin')
     
     user = request.user
     return render(request, 'user_login/user_profile.html', {'user': user})
 
+# User Profile Edit
 def user_profile_edit(request):
-    if not request.user.is_authenticated or request.user.is_staff:
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to edit your profile.")
         return redirect('user:signin')
     
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot edit user profiles.")
+        return redirect('user:staff_signin')
+    
+    user = request.user
     if request.method == 'POST':
-        user = request.user
         user.name = request.POST.get('name', user.name)
         user.phone = request.POST.get('phone', user.phone)
-        user.email = request.POST.get('email', user.email)  # Email from AbstractUser
-        user.save()
+        user.email = request.POST.get('email', user.email)
+        if 'profile_image' in request.FILES:
+            user.profile_image = request.FILES['profile_image']
+        if 'aadhar_image' in request.FILES:
+            user.aadhar_image = request.FILES['aadhar_image']
+        if 'pancard_image' in request.FILES:
+            user.pancard_image = request.FILES['pancard_image']
+        user.save()  # No change to is_verified here
         messages.success(request, "Profile updated successfully.")
         return redirect('user:user_profile')
     
-    return render(request, 'user_login/user_profile_edit.html', {'user': request.user})
+    return render(request, 'user_login/user_profile_edit.html', {'user': user})
+
+# Staff Profile View
 def staff_profile(request):
-    if not request.user.is_authenticated or not request.user.is_staff:
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to view your staff profile.")
         return redirect('user:staff_signin')
     
-    staff = request.user.hotel_staff_profile  # Using related_name
+    if not request.user.is_staff:
+        messages.error(request, "Only staff can access this page.")
+        return redirect('user:signin')
+    
+    try:
+        staff = request.user.hotel_staff_profile
+    except HotelStaff.DoesNotExist:
+        staff = HotelStaff.objects.create(
+            user=request.user,
+            staff_id=generate_staff_id(),
+            department='reception'
+        )
+        messages.warning(request, "Staff profile was missing and has been created with default values.")
+    
     return render(request, 'staff_login/staff_profile.html', {'staff': staff, 'user': request.user})
 
+# Staff Profile Edit
 def staff_profile_edit(request):
-    if not request.user.is_authenticated or not request.user.is_staff:
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to edit your staff profile.")
         return redirect('user:staff_signin')
+    
+    if not request.user.is_staff:
+        messages.error(request, "Only staff can access this page.")
+        return redirect('user:signin')
+    
+    if not request.user.is_verified:
+         messages.warning(request, "Your staff account is not verified. please contact pandharpurguide team .")
+         return render(request, 'staff_login/staff_profile_edit.html')
+    
+    try:
+        staff = request.user.hotel_staff_profile
+    except HotelStaff.DoesNotExist:
+        staff = HotelStaff.objects.create(
+            user=request.user,
+            staff_id=generate_staff_id(),
+            department='reception'
+        )
+        messages.warning(request, "Staff profile was missing and has been created with default values.")
     
     if request.method == 'POST':
         user = request.user
-        staff = user.hotel_staff_profile  # Using related_name
         user.name = request.POST.get('name', user.name)
         user.phone = request.POST.get('phone', user.phone)
         user.email = request.POST.get('email', user.email)
         staff.department = request.POST.get('department', staff.department)
-        staff.is_active_staff = request.POST.get('is_active_staff', staff.is_active_staff) == 'on'
+        staff.hotel_gst_no = request.POST.get('hotel_gst_no', staff.hotel_gst_no)
+        staff.alternate_mobile_no = request.POST.get('alternate_mobile_no', staff.alternate_mobile_no)
+        staff.landline_no = request.POST.get('landline_no', staff.landline_no)
+        if 'shop_main_image' in request.FILES:
+            staff.shop_main_image = request.FILES['shop_main_image']
+        if 'shop_license_image' in request.FILES:
+            staff.shop_license_image = request.FILES['shop_license_image']
+        if 'shop_aadhar_image' in request.FILES:
+            staff.shop_aadhar_image = request.FILES['shop_aadhar_image']
+        if 'owner_pan_image' in request.FILES:
+            staff.owner_pan_image = request.FILES['owner_pan_image']
+        if 'owner_aadhar_image' in request.FILES:
+            staff.owner_aadhar_image = request.FILES['owner_aadhar_image']
+        # Explicitly preserve is_active_staff and is_verified
         user.save()
         staff.save()
-        messages.success(request, "Profile updated successfully.")
+        messages.success(request, "Staff profile updated successfully.")
         return redirect('user:staff_profile')
     
-    return render(request, 'staff_login/staff_profile_edit.html', {'staff': request.user.hotel_staff_profile, 'user': request.user})
+    return render(request, 'staff_login/staff_profile_edit.html', {'staff': staff, 'user': request.user})
