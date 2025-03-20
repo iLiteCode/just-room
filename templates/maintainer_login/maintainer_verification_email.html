@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verification Email</title>
+</head>
+<body>
+    <h1>Welcome, {{ name }}!</h1>
+    <p>Thank you for registering as a maintainer with PandharpurGuide.</p>
+    <p>Your username: {{ username }}</p>
+    <p>Please click the link below to verify your account:</p>
+    <p><a href="{{ verification_url }}">{{ verification_url }}</a></p>
+    <p>If the link doesn't work, copy and paste it into your browser.</p>
+    <p>Regards,<br>PandharpurGuide Team</p>
+</body>
+</html>

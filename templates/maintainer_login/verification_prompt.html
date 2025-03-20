@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verification Required</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; text-align: center; }
+        .message-warning { color: orange; }
+    </style>
+</head>
+<body>
+    <h1>Verification Required</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message-{% if message.tags %}{{ message.tags }}{% else %}warning{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <p>Email: {{ email }}</p>
+    <p>Please contact the PandharpurGuide team to verify your account.</p>
+    <p><a href="{% url 'user:maintainer_signin' %}">Back to Signin</a></p>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verification Success</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; text-align: center; }
+        .message-success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Verification Successful</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message-{% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <p><a href="{% url 'user:maintainer_signin' %}">Sign In Now</a></p>
+</body>
+</html>

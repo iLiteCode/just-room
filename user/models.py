@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.db import models
 
 class User(AbstractUser):
-    name = models.CharField(max_length=50, default='Default')
+    name = models.CharField(max_length=50, default='Users no name mentioned')
     phone = models.CharField(max_length=20, default='8888888888')
     paid_member = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
@@ -42,3 +43,39 @@ class HotelStaff(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.staff_id}"
+    
+
+class Maintainer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='maintainer_profile')
+    maintainer_id = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=50)
+    phone_no = models.CharField(max_length=20)
+    alternate_phone_no = models.CharField(max_length=20, null=True, blank=True)
+    is_verified = models.BooleanField(default=False)  # Verified by superuser
+    hire_date = models.DateField(auto_now_add=True)
+    designation = models.CharField(
+        max_length=50,
+        choices=[
+            ('technician', 'Technician'),
+            ('supervisor', 'Supervisor'),
+            ('manager', 'Manager'),
+            ('support', 'Support'),
+        ],
+        default='technician'
+    )
+    profile_img = models.ImageField(upload_to='maintainer_profiles/', null=True, blank=True)
+    aadhar_img = models.ImageField(upload_to='maintainer_aadhar/', null=True, blank=True)
+    pan_img = models.ImageField(upload_to='maintainer_pancard/', null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # If new instance
+            self.user.is_staff = True
+            self.user.is_verified = False
+            self.is_verified = False
+        # Sync is_verified with User model
+        self.user.is_verified = self.is_verified
+        self.user.save()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name} - {self.maintainer_id}"

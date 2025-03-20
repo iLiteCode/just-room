@@ -98,6 +98,10 @@
                     <button class="btn btn-group bg-warning font-weight-bold">
                         Staff Login
                     </button></a>
+                    <a href="{% url 'user:maintainer_signup' %}" class="nav-link">
+                        <button class="btn btn-group bg-warning font-weight-bold">
+                           maintor Login
+                        </button></a>
                 {% endif %}
 
                
@@ -118,12 +122,21 @@
         {% endfor %}
     
 
+        
+        {% if user.maintainer_profile%}
+        <a href="{% url 'user:maintainer_profile' %}">maintainer_profile</a><br>
+        <a href="{% url 'user:maintainer_profile_edit' %}">Edit maintainer_profile</a><br>
+
+        {% elif user.is_staff %}
         <a href="{% url 'user:staff_profile' %}">Staff Profile</a><br>
-<a href="{% url 'user:staff_profile_edit' %}">Edit Staff Profile</a>
+        <a href="{% url 'user:staff_profile_edit' %}">Edit Staff Profile</a>
 
-
-<a href="{% url 'user:user_profile' %}">User Profile</a><br>
-<a href="{% url 'user:user_profile_edit' %}">Edit User Profile</a><br>
+        {% else %}
+        <a href="{% url 'user:user_profile' %}">User Profile</a><br>
+        <a href="{% url 'user:user_profile_edit' %}">Edit User Profile</a><br>
+        {% endif %}
+        
+        
     {% block body %}
     
     {% endblock body %}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Maintainer Signin</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; }
+        h1 { text-align: center; }
+        .message-error { color: red; }
+        .message-success { color: green; }
+        form { display: flex; flex-direction: column; gap: 10px; }
+        label { font-weight: bold; }
+        input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Maintainer Signin</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message-{% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+        <button type="submit">Sign In</button>
+    </form>
+    <p>Forgot password? <a href="{% url 'user:maintainer_password_reset' %}">Reset here</a></p>
+    <p>No account? <a href="{% url 'user:maintainer_signup' %}">Sign Up</a></p>
+</body>
+</html>
