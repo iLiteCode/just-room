@@ -77,8 +77,7 @@
                         <a class="nav-link text-bold" href="/contact">Contact </a>
                     </li>
                     
-                    
-                   
+                    <!-- staff_login/staff_profile.html -->
                 </ul>
                 {% if user.is_authenticated %}
                       <button class="btn btn-group bg-light" data-toggle="modal" data-target="#forlogin">
@@ -118,6 +117,13 @@
             </div>
         {% endfor %}
     
+
+        <a href="{% url 'user:staff_profile' %}">Staff Profile</a><br>
+<a href="{% url 'user:staff_profile_edit' %}">Edit Staff Profile</a>
+
+
+<a href="{% url 'user:user_profile' %}">User Profile</a><br>
+<a href="{% url 'user:user_profile_edit' %}">Edit User Profile</a><br>
     {% block body %}
     
     {% endblock body %}

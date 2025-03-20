@@ -20,7 +20,7 @@
                 <img src="{% static 'imgs/first.jpg'%}" alt="">
             </div>
             
-            <form action="{% url 'user:signin' %}" method="POST" id="signin-form">
+            <form action="{% url 'user:staff_signin' %}" method="POST" id="signin-form">
                 <h3>Staff Sign In</h3>
                 {% csrf_token %}
                 {% if message %} 
