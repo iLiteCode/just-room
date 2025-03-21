@@ -46,17 +46,22 @@
                 </div>
 
                 <!-- Checkbox for Terms and Conditions -->
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" id="terms-checkbox"> I agree to all statements in <a href="#">Terms & Conditions</a>
+                
+                
+                <div class="form-holder">
+                    <input type="checkbox" id="terms-checkbox"> I agree to all statements in <a href="#">Terms & Conditions</a>
                         <span class="checkmark"></span>
-                    </label>
+                </div>
+               
+                <div class="checkbox">
+                        <p>Already have an account? <a href="{% url 'user:staff_signin' %}">Login</a></p>
                 </div>
 
                 <!-- Signup button -->
                 <div class="form-login">
-                    <button type="submit" id="signup-button">Sign up</button>
-                    <p>Already have an account? <a href="{% url 'user:staff_signin' %}">Login</a></p>
+                    <a href="/">
+                        <i class="fa fa-home home-icon" aria-hidden="true"></i>
+                    </a>&nbsp;&nbsp;&nbsp;<button type="submit" id="signup-button">Sign up</button>
                 </div>
             </form>
         </div>

@@ -12,9 +12,11 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.contrib import messages
-from .models import User, HotelStaff
+from .models import User, HotelStaff, Maintainer
 import random
 import logging
+
+
 
 # Set up logging for debugging
 logger = logging.getLogger(__name__)
@@ -104,7 +106,7 @@ def staff_verify_email(request, uidb64, token):
 def staff_signin(request):
     if request.user.is_authenticated and request.user.is_staff and request.user.is_active:
         return redirect('/')  # Redirect to staff dashboard if verified
-    
+
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -447,6 +449,7 @@ def staff_profile(request):
         messages.error(request, "Only staff can access this page.")
         return redirect('user:signin')
     
+    
     try:
         staff = request.user.hotel_staff_profile
     except HotelStaff.DoesNotExist:
@@ -468,6 +471,7 @@ def staff_profile_edit(request):
     if not request.user.is_staff:
         messages.error(request, "Only staff can access this page.")
         return redirect('user:signin')
+    
     
     if not request.user.is_verified:
          messages.warning(request, "Your staff account is not verified. please contact pandharpurguide team .")
@@ -509,3 +513,254 @@ def staff_profile_edit(request):
         return redirect('user:staff_profile')
     
     return render(request, 'staff_login/staff_profile_edit.html', {'staff': staff, 'user': request.user})
+
+
+
+
+
+logger = logging.getLogger(__name__)
+User = get_user_model()
+
+def generate_maintainer_id():
+    while True:
+        maintainer_id = f"MTNR{random.randint(100, 999)}"
+        if not Maintainer.objects.filter(maintainer_id=maintainer_id).exists():
+            return maintainer_id
+
+def maintainer_signup(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        name = request.POST.get('name')
+        phone_no = request.POST.get('phone_no')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if password1 != password2:
+            messages.error(request, "Passwords don't match.")
+            return redirect('user:maintainer_signup')
+
+        if User.objects.filter(username=username).exists():
+            messages.warning(request, "Username already exists.")
+            return redirect('user:maintainer_signup')
+
+        user = User.objects.create_user(
+            username=username,
+            password=password1,
+            name=name,
+            phone=phone_no,
+            email=username,  # Using username as email for simplicity
+            is_staff=True,
+            is_superuser=False,
+            is_active=False
+        )
+
+        Maintainer.objects.create(
+            user=user,
+            maintainer_id=generate_maintainer_id(),
+            name=name,
+            phone_no=phone_no,
+            designation='technician'
+        )
+
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        verification_url = request.build_absolute_uri(reverse('user:maintainer_verify_email', args=[uid, token]))
+
+        subject = 'Welcome to PandharpurGuide Maintainer - Verify Your Account'
+        html_message = render_to_string('maintainer_login/maintainer_verification_email.html', {
+            'name': name,
+            'username': username,
+            'verification_url': verification_url,
+            'domain': request.get_host(),
+            'protocol': 'https' if request.is_secure() else 'http',
+        })
+        plain_message = strip_tags(html_message)
+
+        try:
+            email = EmailMultiAlternatives(subject, plain_message, settings.EMAIL_HOST_USER, [username])
+            email.attach_alternative(html_message, "text/html")
+            email.send()
+            messages.success(request, "Registration successful. Please check your email for verification by the PandharpurGuide team.")
+        except Exception as e:
+            user.delete()
+            messages.error(request, f"Failed to send verification email: {str(e)}")
+            return redirect('user:maintainer_signup')
+
+        return redirect('user:maintainer_signin')
+
+    return render(request, 'maintainer_login/maintainer_signup.html')
+
+def maintainer_verify_email(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+        if default_token_generator.check_token(user, token) and user.is_staff:
+            user.is_active = True
+            user.is_verified = True
+            maintainer = user.maintainer_profile
+            maintainer.is_verified = True
+            user.save()
+            maintainer.save()
+            messages.success(request, "Email verified successfully by PandharpurGuide team. You can now sign in.")
+            return render(request, 'maintainer_login/maintainer_verification_success.html')
+        else:
+            messages.error(request, "Invalid verification link or account is not a maintainer account.")
+            return render(request, 'maintainer_login/maintainer_verification_failure.html')
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        messages.error(request, "Verification failed due to an invalid or expired link.")
+        return render(request, 'maintainer_login/maintainer_verification_failure.html')
+    
+def maintainer_signin(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        # Authenticate the user
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            # Check if the user has a Maintainer profile
+            try:
+                maintainer = user.maintainer_profile  # Adjust based on your related_name
+                if not user.is_active:
+                    messages.error(request, "Your account is not yet verified. Please check your email.")
+                    return redirect('user:maintainer_signin')
+                login(request, user)
+                messages.success(request, "Successfully logged in!")
+                return redirect('some_dashboard')  # Replace with your target URL
+            except Maintainer.DoesNotExist:
+                messages.error(request, "No maintainer profile found for this user.")
+                return redirect('user:maintainer_signin')
+        else:
+            messages.error(request, "Invalid username or password.")
+            return redirect('user:maintainer_signin')
+    
+    return render(request, 'maintainer_login/maintainer_signin.html')
+
+def maintainer_logout(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        logout(request)
+        messages.success(request, "Logged out successfully.")
+    return redirect('user:maintainer_signin')
+
+def maintainer_profile(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to view your maintainer profile.")
+        return redirect('user:maintainer_signin')
+    
+    if not request.user.is_staff:
+        messages.error(request, "Only maintainers can access this page.")
+        return redirect('user:signin')
+    
+    try:
+        maintainer = request.user.maintainer_profile
+    except Maintainer.DoesNotExist:
+        maintainer = Maintainer.objects.create(
+            user=request.user,
+            maintainer_id=generate_maintainer_id(),
+            name=request.user.name,
+            phone_no=request.user.phone,
+            designation='technician'
+        )
+        messages.warning(request, "Maintainer profile was missing and has been created with default values.")
+    
+    return render(request, 'maintainer_login/maintainer_profile.html', {'maintainer': maintainer, 'user': request.user})
+
+def maintainer_profile_edit(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to edit your maintainer profile.")
+        return redirect('user:maintainer_signin')
+    
+    if not request.user.is_staff:
+        messages.error(request, "Only maintainers can access this page.")
+        return redirect('user:signin')
+    
+    if not request.user.is_verified or not request.user.maintainer_profile.is_verified:
+        messages.warning(request, "Your maintainer account is not verified. Please contact the PandharpurGuide team.")
+        return render(request, 'maintainer_login/maintainer_profile_edit.html', {'user': request.user, 'maintainer': request.user.maintainer_profile})
+
+    try:
+        maintainer = request.user.maintainer_profile
+    except Maintainer.DoesNotExist:
+        maintainer = Maintainer.objects.create(
+            user=request.user,
+            maintainer_id=generate_maintainer_id(),
+            name=request.user.name,
+            phone_no=request.user.phone,
+            designation='technician'
+        )
+        messages.warning(request, "Maintainer profile was missing and has been created with default values.")
+
+    if request.method == 'POST':
+        user = request.user
+        maintainer.name = request.POST.get('name', maintainer.name)
+        maintainer.phone_no = request.POST.get('phone_no', maintainer.phone_no)
+        maintainer.alternate_phone_no = request.POST.get('alternate_phone_no', maintainer.alternate_phone_no)
+        user.email = request.POST.get('email', user.email)
+        maintainer.designation = request.POST.get('designation', maintainer.designation)
+        if 'profile_img' in request.FILES:
+            maintainer.profile_img = request.FILES['profile_img']
+        if 'aadhar_img' in request.FILES:
+            maintainer.aadhar_img = request.FILES['aadhar_img']
+        if 'pan_img' in request.FILES:
+            maintainer.pan_img = request.FILES['pan_img']
+        user.save()
+        maintainer.save()
+        messages.success(request, "Maintainer profile updated successfully.")
+        return redirect('user:maintainer_profile')
+    
+    return render(request, 'maintainer_login/maintainer_profile_edit.html', {'maintainer': maintainer, 'user': request.user})
+
+class MaintainerPasswordResetView(PasswordResetView):
+    template_name = 'maintainer_login/maintainer_password_reset.html'
+    form_class = PasswordResetForm
+    success_url = reverse_lazy('user:maintainer_password_reset_done')
+    email_template_name = 'maintainer_login/maintainer_password_reset_email.txt'
+    html_email_template_name = 'maintainer_login/maintainer_password_reset_email.html'
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        if not User.objects.filter(email=email, is_staff=True).exists():
+            messages.error(self.request, "No maintainer account found with this email.")
+            return render(self.request, self.template_name, {'form': form})
+
+        user = User.objects.get(email=email)
+        if not user.is_active or not user.maintainer_profile.is_verified:
+            messages.warning(self.request, "Your maintainer account is not verified yet. Please contact the PandharpurGuide team.")
+            return render(self.request, 'maintainer_login/verification_prompt.html', {'email': email})
+
+        protocol = 'https' if self.request.is_secure() else 'http'
+        domain = self.request.get_host()
+
+        opts = {
+            'use_https': self.request.is_secure(),
+            'from_email': settings.EMAIL_HOST_USER,
+            'request': self.request,
+            'email_template_name': self.email_template_name,
+            'html_email_template_name': self.html_email_template_name,
+            'extra_email_context': {'protocol': protocol, 'domain': domain},
+        }
+
+        form.save(**opts)
+        return super().form_valid(form)
+
+class MaintainerPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'maintainer_login/maintainer_password_reset_confirm.html'
+    form_class = SetPasswordForm
+    success_url = reverse_lazy('user:maintainer_password_reset_complete')
+
+    def dispatch(self, *args, **kwargs):
+        uidb64 = kwargs.get('uidb64')
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+            if not user.is_staff:
+                messages.error(self.request, "This is not a maintainer account.")
+                return render(self.request, 'maintainer_login/maintainer_password_reset_failure.html')
+            if not user.is_active or not user.maintainer_profile.is_verified:
+                messages.warning(self.request, "Your maintainer account is not verified yet. Please contact the PandharpurGuide team.")
+                return render(self.request, 'maintainer_login/verification_prompt.html', {'email': user.email})
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            messages.error(self.request, "Invalid reset link.")
+            return render(self.request, 'maintainer_login/maintainer_password_reset_failure.html')
+        return super().dispatch(*args, **kwargs)
