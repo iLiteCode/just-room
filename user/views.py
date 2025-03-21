@@ -1,96 +1,30 @@
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
-from .models import User
-# from .models import Detail
-from django.contrib.auth import authenticate, login, logout
-from django.core.mail import send_mail
-from hotel import settings
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-
-from django.contrib.auth import get_user_model
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMultiAlternatives
-from django.utils.html import strip_tags
-from django.conf import settings
-from django.template.loader import render_to_string
-# Create your views here.
-
-from django.core.mail import EmailMultiAlternatives
-from django.contrib.auth.tokens import default_token_generator
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
-from django.shortcuts import render
-from user.models import User  # Assuming your custom User model is here
-
-
-
-
-
-
-
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
-from django.http import HttpResponse
-from django.template import loader
-from django.core.mail import EmailMultiAlternatives
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.tokens import default_token_generator
-from django.urls import reverse
-from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-
-
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from user.models import User  # Custom User model
-from django.core.mail import EmailMultiAlternatives
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.tokens import default_token_generator
-from django.urls import reverse
-from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
-from django.views.generic.edit import FormView
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
-from django.urls import reverse_lazy
-
-from django.contrib.auth import login
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
+from django.http import HttpResponse
+from django.urls import reverse, reverse_lazy
 from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from .models import User, HotelStaff
-import random
-
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
-from .models import User, HotelStaff
+from django.contrib import messages
+from .models import User, HotelStaff, Maintainer
 import random
+import logging
 
+
+
+# Set up logging for debugging
+logger = logging.getLogger(__name__)
+
+# Get the custom user model
+User = get_user_model()
+
+# Staff Signup
 def staff_signup(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -99,17 +33,14 @@ def staff_signup(request):
         password1 = request.POST['password1']
         password2 = request.POST['password2']
 
-        # Password validation
         if password1 != password2:
             messages.error(request, "Passwords don't match")
-            return redirect('user:staff_signup')  # Use namespace
+            return redirect('user:staff_signup')
 
-        # Check if username exists
         if User.objects.filter(username=username).exists():
             messages.warning(request, "Username already exists")
-            return redirect('user:staff_signup')  # Use namespace
+            return redirect('user:staff_signup')
 
-        # Create new staff user
         user = User.objects.create_user(
             username=username,
             password=password1,
@@ -121,22 +52,13 @@ def staff_signup(request):
             is_active=False  # Inactive until verified
         )
 
-        # Create HotelStaff profile
         staff_id = f"HSTF{random.randint(100, 999)}"
-        HotelStaff.objects.create(
-            user=user,
-            staff_id=staff_id,
-            department='reception'
-        )
+        HotelStaff.objects.create(user=user, staff_id=staff_id, department='reception')
 
-        # Generate verification token
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        verification_url = request.build_absolute_uri(
-            reverse('user:staff_verify_email', args=[uid, token])  # Use 'user:' namespace
-        )
+        verification_url = request.build_absolute_uri(reverse('user:staff_verify_email', args=[uid, token]))
 
-        # Email content
         subject = 'Welcome to Hotel Staff - Verify Your Account'
         html_message = render_to_string('staff_login/staff_verification_email.html', {
             'name': name,
@@ -147,7 +69,6 @@ def staff_signup(request):
         })
         plain_message = strip_tags(html_message)
 
-        # Send verification email with error handling
         try:
             email = EmailMultiAlternatives(
                 subject,
@@ -161,12 +82,13 @@ def staff_signup(request):
         except Exception as e:
             user.delete()
             messages.error(request, f"Failed to send verification email: {str(e)}")
-            return redirect('user:staff_signup')  # Use namespace
+            return redirect('user:staff_signup')
 
-        return redirect('user:staff_signin')  # Use namespace
+        return redirect('user:staff_signin')
 
     return render(request, 'staff_login/staff_signup.html')
 
+# Staff Email Verification
 def staff_verify_email(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -180,9 +102,11 @@ def staff_verify_email(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         return render(request, 'staff_login/staff_verification_failure.html', {'message': 'Verification failed due to an invalid or expired link.'})
 
+# Staff Signin
 def staff_signin(request):
-    if request.user.is_authenticated and request.user.is_staff:
-        return redirect('/')  # Use namespace
+    if request.user.is_authenticated and request.user.is_staff and request.user.is_active:
+        return redirect('/')  # Redirect to staff dashboard if verified
+
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -194,19 +118,19 @@ def staff_signin(request):
         user = User.objects.get(username=username)
 
         if not user.is_staff:
-            return render(request, 'staff_login/staff_signin.html', {'message': 'This is not a staff account. Please use a staff username.'})
+            return render(request, 'staff_login/staff_signin.html', {'message': 'This is may be User account. Please use a staff username.'})
 
         if not user.is_active:
-            return render(request, 'staff_login/staff_signin.html', {'message': 'Staff account is not verified yet. Please check your email for verification instructions.'})
+            return render(request, 'staff_login/verification_prompt.html', {'email': username, 'message': 'Your staff account is not verified yet. Please check your email.'})
+        
 
         authenticated_user = authenticate(request, username=username, password=password)
 
         if authenticated_user is not None:
             if authenticated_user.is_staff and authenticated_user.is_active:
                 request.session['username'] = username
-                request.session.save()
                 login(request, authenticated_user)
-                return redirect('/')  # Use namespace
+                return redirect('/')
             else:
                 return render(request, 'staff_login/staff_signin.html', {'message': 'Account is not authorized for staff access.'})
 
@@ -214,35 +138,61 @@ def staff_signin(request):
 
     return render(request, 'staff_login/staff_signin.html')
 
-# Add staffpanel view if not already present
-
-
 # Staff Logout
 def staff_logout_view(request):
     if request.user.is_authenticated and request.user.is_staff:
         logout(request)
-        request.session.flush()  # Clear session data
-        return redirect('staff:staff_signin')
-    return redirect('staff:staff_signin')
+        request.session.flush()
+        return redirect('user:staff_signin')
+    return redirect('user:staff_signin')
 
-# Custom Staff Password Reset View
+# Staff Password Reset View
 class StaffCustomPasswordResetView(PasswordResetView):
     template_name = 'staff_login/staff_password_reset.html'
     form_class = PasswordResetForm
-    success_url = reverse_lazy('staff:staff_password_reset_done')
+    success_url = reverse_lazy('user:staff_password_reset_done')
+    email_template_name = 'staff_login/staff_password_reset_email.txt'
+    html_email_template_name = 'staff_login/staff_password_reset_email.html'
 
     def form_valid(self, form):
-        # Ensure only staff users can reset their password via this view
         email = form.cleaned_data['email']
         if not User.objects.filter(email=email, is_staff=True).exists():
-            return render(self.request, self.template_name, {'form': form, 'error': 'No staff account found with this email.'})
+            return render(self.request, self.template_name, {
+                'form': form,
+                'error': 'No staff account found with this email.'
+            })
+
+        # Only allow reset for active staff users
+        user = User.objects.get(email=email)
+        if not user.is_active:
+            return render(self.request, 'staff_login/verification_prompt.html', {
+                'email': email,
+                'message': 'Your staff account is not verified yet. Please verify your email before resetting your password.'
+            })
+
+        protocol = 'https' if self.request.is_secure() else 'http'
+        domain = self.request.get_host()
+
+        opts = {
+            'use_https': self.request.is_secure(),
+            'from_email': settings.EMAIL_HOST_USER,
+            'request': self.request,
+            'email_template_name': self.email_template_name,
+            'html_email_template_name': self.html_email_template_name,
+            'extra_email_context': {
+                'protocol': protocol,
+                'domain': domain,
+            },
+        }
+
+        form.save(**opts)
         return super().form_valid(form)
 
-# Custom Staff Password Reset Confirm View
+# Staff Password Reset Confirm View
 class StaffCustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'staff_login/staff_password_reset_confirm.html'
     form_class = SetPasswordForm
-    success_url = reverse_lazy('staff:staff_password_reset_complete')
+    success_url = reverse_lazy('user:staff_password_reset_complete')
 
     def dispatch(self, *args, **kwargs):
         uidb64 = kwargs.get('uidb64')
@@ -250,80 +200,65 @@ class StaffCustomPasswordResetConfirmView(PasswordResetConfirmView):
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
             if not user.is_staff:
-                return render(self.request, 'staff_login/staff_password_reset_failure.html', {'message': 'This is not a staff account.'})
+                return render(self.request, 'staff_login/staff_password_reset_failure.html', {
+                    'message': 'This is not a staff account.'
+                })
+            if not user.is_active:
+                return render(self.request, 'staff_login/verification_prompt.html', {
+                    'email': user.email,
+                    'message': 'Your staff account is not verified yet. Please verify your email before resetting your password.'
+                })
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            return render(self.request, 'staff_login/staff_password_reset_failure.html', {'message': 'Invalid reset link.'})
+            return render(self.request, 'staff_login/staff_password_reset_failure.html', {
+                'message': 'Invalid reset link.'
+            })
         return super().dispatch(*args, **kwargs)
 
-
-
-
-
+# User Signup
 def signup(request):
     if request.method == 'POST':
         username = request.POST['username']
         name = request.POST['name']
         phone = request.POST['phone']
         password = request.POST['password']
-        
-        # Check if the user already exists
+
         if User.objects.filter(username=username).exists():
             return render(request, 'user_login/signin.html', {'message': 'User already exists with that username. Please sign in.'})
 
-        # Create the new user and deactivate it until verification
-        user = User.objects.create_user(username=username, password=password, name=name, phone=phone)
-        user.is_active = False
-        user.email = username  # Assuming the username is used as email
+        user = User.objects.create_user(username=username, password=password, name=name, phone=phone, email=username, is_active=False)
 
-        # Generate token for email verification
         token = default_token_generator.make_token(user)
-        
-        # Build the verification URL
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         verification_url = request.build_absolute_uri(reverse('user:verify_email', args=[uid, token]))
 
-        # Email subject
         subject = 'Welcome to PandharpurGuide, Verify your account'
-
-        # Render the HTML email template with password
         html_message = render_to_string('user_login/verification_email.html', {
             'name': user.name,
             'username': user.username,
             'email': user.email,
             'phone': user.phone,
-            'password': password,  # Sending the password here (NOT recommended for production!)
+            'password': password,  # Not recommended in production
             'verification_url': verification_url,
             'domain': request.get_host(),
             'protocol': 'https' if request.is_secure() else 'http',
         })
-        
-        # Convert HTML to plain text for fallback
         plain_message = strip_tags(html_message)
-        
-        # Email setup using EmailMultiAlternatives
-        email = EmailMultiAlternatives(
-            subject,
-            plain_message,
-            settings.EMAIL_HOST_USER,
-            [user.email],  # Send email to the user's email (username as email)
-        )
+
+        email = EmailMultiAlternatives(subject, plain_message, settings.EMAIL_HOST_USER, [user.email])
         email.attach_alternative(html_message, "text/html")
 
-        # Try sending the email
         try:
             email.send()
         except Exception as e:
-            # If there's an error sending the email, render a failure message
-            return render(request, 'user_login/signup.html', {'message': f'Error sending verification email. Please try again later. ({str(e)})'})
-        
-        # Save the user after email is sent
+            user.delete()
+            return render(request, 'user_login/signup.html', {'message': f'Error sending verification email: {str(e)}'})
+
         user.save()
-        
-        # Redirect to signin page with a success message
         return render(request, 'user_login/signin.html', {'message': 'User created successfully. Please check your email for verification instructions.'})
 
     return render(request, 'user_login/signup.html')
 
+# User Email Verification
 def verify_email(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -333,94 +268,499 @@ def verify_email(request, uidb64, token):
             user.save()
             return render(request, 'user_login/verification_success.html')
         else:
-            return render(request, 'staff_login/staff_verification_failure.html')
+            return render(request, 'user_login/verification_failure.html')
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         return render(request, 'user_login/verification_failure.html')
 
+# User Signin
 def signin(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.is_active:
         return redirect('/')
+
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        
-        # Check if the user exists
+
         if not User.objects.filter(username=username).exists():
             return render(request, 'user_login/signup.html', {'message': "User doesn't exist. Please sign up"})
-        
+
         user = User.objects.get(username=username)
-        
-        # Check if the user account is verified
+
+        if user.is_staff:
+            return render(request, 'user_login/signin.html', {'message': 'This is a staff account. Please use the staff signin page.'})
+
         if not user.is_active:
-            return render(request, 'user_login/signin.html', {'message': 'User account is not verified yet. Please check your email for verification instructions.'})
-        
-        # Authenticate the user with credentials
-        authenticated_user = authenticate(username=username, password=password)
-        
-        if authenticated_user is not None:
-            if authenticated_user.is_active:
-                request.session['username'] = username
-                request.session.save()
-                login(request, authenticated_user)
-                return redirect('/')
-        
+            return render(request, 'user_login/verification_prompt.html', {'email': username, 'message': 'Your account is not verified yet. Please check your email.'})
+
+        authenticated_user = authenticate(request, username=username, password=password)
+
+        if authenticated_user is not None and authenticated_user.is_active:
+            request.session['username'] = username
+            login(request, authenticated_user)
+            return redirect('/')
         return render(request, 'user_login/signin.html', {'message': 'Incorrect username or password'})
-    
+
     return render(request, 'user_login/signin.html')
 
-
+# User Logout
 def logout_view(request):
-    try:
-        # Try to delete the 'username' from the session
-        del request.session['username']
-    except KeyError:
-        # Handle the case where 'username' is not in the session
-        pass
-    
-    # Save the session changes and log out the user
-    request.session.save()
-    logout(request)
-    
-    # Optionally redirect to home or another page after logout
-    return render(request, 'index.html', {'message': 'Logged out successfully'})
+    if request.user.is_authenticated:
+        logout(request)
+        request.session.flush()
+        return render(request, 'index.html', {'message': 'Logged out successfully'})
+    return redirect('user:signin')
 
-
-from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
-from django.urls import reverse, reverse_lazy
-
-from django.contrib.auth.views import PasswordResetView
-from django.urls import reverse_lazy
+# User Password Reset View
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'user_login/password_reset.html'
     success_url = reverse_lazy('user:password_reset_done')
-    email_template_name = 'user_login/reset_password.html'  # Plain text version
-    html_email_template_name = 'user_login/reset_password.html'  # HTML version
+    email_template_name = 'user_login/reset_password.txt'
+    html_email_template_name = 'user_login/reset_password.html'
 
     def form_valid(self, form):
         email = form.cleaned_data['email']
+        if not User.objects.filter(email=email).exists():
+            return render(self.request, self.template_name, {
+                'form': form,
+                'error': 'No account found with this email.'
+            })
+
+        user = User.objects.get(email=email)
+        if user.is_staff:
+            return render(self.request, self.template_name, {
+                'form': form,
+                'error': 'This is a staff account. Please use the staff password reset page.'
+            })
+
+        if not user.is_active:
+            return render(self.request, 'user_login/verification_prompt.html', {
+                'email': email,
+                'message': 'Your account is not verified yet. Please verify your email before resetting your password.'
+            })
+
         protocol = 'https' if self.request.is_secure() else 'http'
         domain = self.request.get_host()
 
         opts = {
             'use_https': self.request.is_secure(),
-            'from_email': self.from_email,
+            'from_email': settings.EMAIL_HOST_USER,
             'request': self.request,
             'email_template_name': self.email_template_name,
-            'html_email_template_name': self.html_email_template_name,  # Add this
+            'html_email_template_name': self.html_email_template_name,
             'extra_email_context': {
                 'protocol': protocol,
                 'domain': domain,
             },
         }
-        
+
         form.save(**opts)
         return super().form_valid(form)
-    
-from django.contrib.auth.views import PasswordResetConfirmView
-from django.contrib.auth.forms import SetPasswordForm
-from django.urls import reverse_lazy
 
+# User Password Reset Confirm View
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'user_login/password_reset_confirm.html'
     success_url = reverse_lazy('user:password_reset_complete')
     form_class = SetPasswordForm
+
+    def dispatch(self, *args, **kwargs):
+        uidb64 = kwargs.get('uidb64')
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+            if user.is_staff:
+                return render(self.request, 'user_login/password_reset_failure.html', {
+                    'message': 'This is a staff account. Please use the staff password reset page.'
+                })
+            if not user.is_active:
+                return render(self.request, 'user_login/verification_prompt.html', {
+                    'email': user.email,
+                    'message': 'Your account is not verified yet. Please verify your email before resetting your password.'
+                })
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return render(self.request, 'user_login/password_reset_failure.html', {
+                'message': 'Invalid reset link.'
+            })
+        return super().dispatch(*args, **kwargs)
+    
+
+
+
+
+    # userprofile and staff too bro
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, logout, authenticate
+from django.contrib import messages
+from .models import User, HotelStaff
+import random
+
+def generate_staff_id():
+    while True:
+        staff_id = f"HSTF{random.randint(100, 999)}"
+        if not HotelStaff.objects.filter(staff_id=staff_id).exists():
+            return staff_id
+
+# User Profile View
+def user_profile(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to view your profile.")
+        return redirect('user:signin')
+    
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot access user profiles.")
+        return redirect('user:staff_signin')
+    
+    user = request.user
+    return render(request, 'user_login/user_profile.html', {'user': user})
+
+# User Profile Edit
+def user_profile_edit(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to edit your profile.")
+        return redirect('user:signin')
+    
+    if request.user.is_staff:
+        messages.error(request, "Staff accounts cannot edit user profiles.")
+        return redirect('user:staff_signin')
+    
+    user = request.user
+    if request.method == 'POST':
+        user.name = request.POST.get('name', user.name)
+        user.phone = request.POST.get('phone', user.phone)
+        user.email = request.POST.get('email', user.email)
+        if 'profile_image' in request.FILES:
+            user.profile_image = request.FILES['profile_image']
+        if 'aadhar_image' in request.FILES:
+            user.aadhar_image = request.FILES['aadhar_image']
+        if 'pancard_image' in request.FILES:
+            user.pancard_image = request.FILES['pancard_image']
+        user.save()  # No change to is_verified here
+        messages.success(request, "Profile updated successfully.")
+        return redirect('user:user_profile')
+    
+    return render(request, 'user_login/user_profile_edit.html', {'user': user})
+
+# Staff Profile View
+def staff_profile(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to view your staff profile.")
+        return redirect('user:staff_signin')
+    
+    if not request.user.is_staff:
+        messages.error(request, "Only staff can access this page.")
+        return redirect('user:signin')
+    
+    
+    try:
+        staff = request.user.hotel_staff_profile
+    except HotelStaff.DoesNotExist:
+        staff = HotelStaff.objects.create(
+            user=request.user,
+            staff_id=generate_staff_id(),
+            department='reception'
+        )
+        messages.warning(request, "Staff profile was missing and has been created with default values.")
+    
+    return render(request, 'staff_login/staff_profile.html', {'staff': staff, 'user': request.user})
+
+# Staff Profile Edit
+def staff_profile_edit(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to edit your staff profile.")
+        return redirect('user:staff_signin')
+    
+    if not request.user.is_staff:
+        messages.error(request, "Only staff can access this page.")
+        return redirect('user:signin')
+    
+    
+    if not request.user.is_verified:
+         messages.warning(request, "Your staff account is not verified. please contact pandharpurguide team .")
+         return render(request, 'staff_login/staff_profile_edit.html')
+    
+    try:
+        staff = request.user.hotel_staff_profile
+    except HotelStaff.DoesNotExist:
+        staff = HotelStaff.objects.create(
+            user=request.user,
+            staff_id=generate_staff_id(),
+            department='reception'
+        )
+        messages.warning(request, "Staff profile was missing and has been created with default values.")
+    
+    if request.method == 'POST':
+        user = request.user
+        user.name = request.POST.get('name', user.name)
+        user.phone = request.POST.get('phone', user.phone)
+        user.email = request.POST.get('email', user.email)
+        staff.department = request.POST.get('department', staff.department)
+        staff.hotel_gst_no = request.POST.get('hotel_gst_no', staff.hotel_gst_no)
+        staff.alternate_mobile_no = request.POST.get('alternate_mobile_no', staff.alternate_mobile_no)
+        staff.landline_no = request.POST.get('landline_no', staff.landline_no)
+        if 'shop_main_image' in request.FILES:
+            staff.shop_main_image = request.FILES['shop_main_image']
+        if 'shop_license_image' in request.FILES:
+            staff.shop_license_image = request.FILES['shop_license_image']
+        if 'shop_aadhar_image' in request.FILES:
+            staff.shop_aadhar_image = request.FILES['shop_aadhar_image']
+        if 'owner_pan_image' in request.FILES:
+            staff.owner_pan_image = request.FILES['owner_pan_image']
+        if 'owner_aadhar_image' in request.FILES:
+            staff.owner_aadhar_image = request.FILES['owner_aadhar_image']
+        # Explicitly preserve is_active_staff and is_verified
+        user.save()
+        staff.save()
+        messages.success(request, "Staff profile updated successfully.")
+        return redirect('user:staff_profile')
+    
+    return render(request, 'staff_login/staff_profile_edit.html', {'staff': staff, 'user': request.user})
+
+
+
+
+
+logger = logging.getLogger(__name__)
+User = get_user_model()
+
+def generate_maintainer_id():
+    while True:
+        maintainer_id = f"MTNR{random.randint(100, 999)}"
+        if not Maintainer.objects.filter(maintainer_id=maintainer_id).exists():
+            return maintainer_id
+
+def maintainer_signup(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        name = request.POST.get('name')
+        phone_no = request.POST.get('phone_no')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if password1 != password2:
+            messages.error(request, "Passwords don't match.")
+            return redirect('user:maintainer_signup')
+
+        if User.objects.filter(username=username).exists():
+            messages.warning(request, "Username already exists.")
+            return redirect('user:maintainer_signup')
+
+        user = User.objects.create_user(
+            username=username,
+            password=password1,
+            name=name,
+            phone=phone_no,
+            email=username,  # Using username as email for simplicity
+            is_staff=True,
+            is_superuser=False,
+            is_active=False
+        )
+
+        Maintainer.objects.create(
+            user=user,
+            maintainer_id=generate_maintainer_id(),
+            name=name,
+            phone_no=phone_no,
+            designation='technician'
+        )
+
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        verification_url = request.build_absolute_uri(reverse('user:maintainer_verify_email', args=[uid, token]))
+
+        subject = 'Welcome to PandharpurGuide Maintainer - Verify Your Account'
+        html_message = render_to_string('maintainer_login/maintainer_verification_email.html', {
+            'name': name,
+            'username': username,
+            'verification_url': verification_url,
+            'domain': request.get_host(),
+            'protocol': 'https' if request.is_secure() else 'http',
+        })
+        plain_message = strip_tags(html_message)
+
+        try:
+            email = EmailMultiAlternatives(subject, plain_message, settings.EMAIL_HOST_USER, [username])
+            email.attach_alternative(html_message, "text/html")
+            email.send()
+            messages.success(request, "Registration successful. Please check your email for verification by the PandharpurGuide team.")
+        except Exception as e:
+            user.delete()
+            messages.error(request, f"Failed to send verification email: {str(e)}")
+            return redirect('user:maintainer_signup')
+
+        return redirect('user:maintainer_signin')
+
+    return render(request, 'maintainer_login/maintainer_signup.html')
+
+def maintainer_verify_email(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+        if default_token_generator.check_token(user, token) and user.is_staff:
+            user.is_active = True
+            user.is_verified = True
+            maintainer = user.maintainer_profile
+            maintainer.is_verified = True
+            user.save()
+            maintainer.save()
+            messages.success(request, "Email verified successfully by PandharpurGuide team. You can now sign in.")
+            return render(request, 'maintainer_login/maintainer_verification_success.html')
+        else:
+            messages.error(request, "Invalid verification link or account is not a maintainer account.")
+            return render(request, 'maintainer_login/maintainer_verification_failure.html')
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        messages.error(request, "Verification failed due to an invalid or expired link.")
+        return render(request, 'maintainer_login/maintainer_verification_failure.html')
+    
+def maintainer_signin(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        # Authenticate the user
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            # Check if the user has a Maintainer profile
+            try:
+                maintainer = user.maintainer_profile  # Adjust based on your related_name
+                if not user.is_active:
+                    messages.error(request, "Your account is not yet verified. Please check your email.")
+                    return redirect('user:maintainer_signin')
+                login(request, user)
+                messages.success(request, "Successfully logged in!")
+                return redirect('some_dashboard')  # Replace with your target URL
+            except Maintainer.DoesNotExist:
+                messages.error(request, "No maintainer profile found for this user.")
+                return redirect('user:maintainer_signin')
+        else:
+            messages.error(request, "Invalid username or password.")
+            return redirect('user:maintainer_signin')
+    
+    return render(request, 'maintainer_login/maintainer_signin.html')
+
+def maintainer_logout(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        logout(request)
+        messages.success(request, "Logged out successfully.")
+    return redirect('user:maintainer_signin')
+
+def maintainer_profile(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to view your maintainer profile.")
+        return redirect('user:maintainer_signin')
+    
+    if not request.user.is_staff:
+        messages.error(request, "Only maintainers can access this page.")
+        return redirect('user:signin')
+    
+    try:
+        maintainer = request.user.maintainer_profile
+    except Maintainer.DoesNotExist:
+        maintainer = Maintainer.objects.create(
+            user=request.user,
+            maintainer_id=generate_maintainer_id(),
+            name=request.user.name,
+            phone_no=request.user.phone,
+            designation='technician'
+        )
+        messages.warning(request, "Maintainer profile was missing and has been created with default values.")
+    
+    return render(request, 'maintainer_login/maintainer_profile.html', {'maintainer': maintainer, 'user': request.user})
+
+def maintainer_profile_edit(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Please sign in to edit your maintainer profile.")
+        return redirect('user:maintainer_signin')
+    
+    if not request.user.is_staff:
+        messages.error(request, "Only maintainers can access this page.")
+        return redirect('user:signin')
+    
+    if not request.user.is_verified or not request.user.maintainer_profile.is_verified:
+        messages.warning(request, "Your maintainer account is not verified. Please contact the PandharpurGuide team.")
+        return render(request, 'maintainer_login/maintainer_profile_edit.html', {'user': request.user, 'maintainer': request.user.maintainer_profile})
+
+    try:
+        maintainer = request.user.maintainer_profile
+    except Maintainer.DoesNotExist:
+        maintainer = Maintainer.objects.create(
+            user=request.user,
+            maintainer_id=generate_maintainer_id(),
+            name=request.user.name,
+            phone_no=request.user.phone,
+            designation='technician'
+        )
+        messages.warning(request, "Maintainer profile was missing and has been created with default values.")
+
+    if request.method == 'POST':
+        user = request.user
+        maintainer.name = request.POST.get('name', maintainer.name)
+        maintainer.phone_no = request.POST.get('phone_no', maintainer.phone_no)
+        maintainer.alternate_phone_no = request.POST.get('alternate_phone_no', maintainer.alternate_phone_no)
+        user.email = request.POST.get('email', user.email)
+        maintainer.designation = request.POST.get('designation', maintainer.designation)
+        if 'profile_img' in request.FILES:
+            maintainer.profile_img = request.FILES['profile_img']
+        if 'aadhar_img' in request.FILES:
+            maintainer.aadhar_img = request.FILES['aadhar_img']
+        if 'pan_img' in request.FILES:
+            maintainer.pan_img = request.FILES['pan_img']
+        user.save()
+        maintainer.save()
+        messages.success(request, "Maintainer profile updated successfully.")
+        return redirect('user:maintainer_profile')
+    
+    return render(request, 'maintainer_login/maintainer_profile_edit.html', {'maintainer': maintainer, 'user': request.user})
+
+class MaintainerPasswordResetView(PasswordResetView):
+    template_name = 'maintainer_login/maintainer_password_reset.html'
+    form_class = PasswordResetForm
+    success_url = reverse_lazy('user:maintainer_password_reset_done')
+    email_template_name = 'maintainer_login/maintainer_password_reset_email.txt'
+    html_email_template_name = 'maintainer_login/maintainer_password_reset_email.html'
+
+    def form_valid(self, form):
+        email = form.cleaned_data['email']
+        if not User.objects.filter(email=email, is_staff=True).exists():
+            messages.error(self.request, "No maintainer account found with this email.")
+            return render(self.request, self.template_name, {'form': form})
+
+        user = User.objects.get(email=email)
+        if not user.is_active or not user.maintainer_profile.is_verified:
+            messages.warning(self.request, "Your maintainer account is not verified yet. Please contact the PandharpurGuide team.")
+            return render(self.request, 'maintainer_login/verification_prompt.html', {'email': email})
+
+        protocol = 'https' if self.request.is_secure() else 'http'
+        domain = self.request.get_host()
+
+        opts = {
+            'use_https': self.request.is_secure(),
+            'from_email': settings.EMAIL_HOST_USER,
+            'request': self.request,
+            'email_template_name': self.email_template_name,
+            'html_email_template_name': self.html_email_template_name,
+            'extra_email_context': {'protocol': protocol, 'domain': domain},
+        }
+
+        form.save(**opts)
+        return super().form_valid(form)
+
+class MaintainerPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'maintainer_login/maintainer_password_reset_confirm.html'
+    form_class = SetPasswordForm
+    success_url = reverse_lazy('user:maintainer_password_reset_complete')
+
+    def dispatch(self, *args, **kwargs):
+        uidb64 = kwargs.get('uidb64')
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+            if not user.is_staff:
+                messages.error(self.request, "This is not a maintainer account.")
+                return render(self.request, 'maintainer_login/maintainer_password_reset_failure.html')
+            if not user.is_active or not user.maintainer_profile.is_verified:
+                messages.warning(self.request, "Your maintainer account is not verified yet. Please contact the PandharpurGuide team.")
+                return render(self.request, 'maintainer_login/verification_prompt.html', {'email': user.email})
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            messages.error(self.request, "Invalid reset link.")
+            return render(self.request, 'maintainer_login/maintainer_password_reset_failure.html')
+        return super().dispatch(*args, **kwargs)
