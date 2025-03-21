@@ -2,41 +2,113 @@
 <html>
 <head>
     <title>Maintainer Signup</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; }
-        h1 { text-align: center; }
-        .message-error { color: red; }
-        .message-success { color: green; }
-        form { display: flex; flex-direction: column; gap: 10px; }
-        label { font-weight: bold; }
-        input { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #007bff; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-    </style>
+ 
 </head>
 <body>
-    <h1>Maintainer Signup</h1>
-    {% if messages %}
-        {% for message in messages %}
-            <div class="message-{% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">
-                {{ message }}
+    <!DOCTYPE html>
+    <html>
+    <head>
+        {% load static %}
+        <meta charset="utf-8">
+        <title>Signup Here</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{% static 'user/css/style.css' %}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="inner">
+                <div class="image-holder">
+                    <img src="{% static 'imgs/seond.png' %}" alt="">
+                    <img src="{% static 'imgs/first.jpg' %}" alt="">
+                </div>
+        
+                <form action="{% url 'user:maintainer_signup' %}" method="POST" id="signup-form">
+                    <h3>Maintainer Sign Up</h3>
+                    {% csrf_token %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p class="hint-text text-danger {% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+        
+                    <div class="form-holder active">
+                        <input type="text" class="form-control" name="username" id="username" placeholder="Username" required="required">
+                    </div>
+                    <div class="form-holder">
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Name" required="required">
+                    </div>
+                    <div class="form-holder">
+                        <input type="tel" class="form-control" name="phone_no" id="phone_no" placeholder="Phone Number" required="required">
+                    </div>
+        
+                    <!-- Password inputs with toggle -->
+                    <div class="form-holder" style="position: relative;">
+                        <input type="password" placeholder="Password" name="password1" class="form-control" id="password1" required>
+                        <span toggle="#password1" class="fa fa-fw fa-eye-slash field-icon" id="togglePassword1" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
+                    </div>
+                    <div class="form-holder" style="position: relative;">
+                        <input type="password" placeholder="Confirm Password" name="password2" class="form-control" id="password2" required>
+                        <span toggle="#password2" class="fa fa-fw fa-eye-slash field-icon" id="togglePassword2" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
+                    </div>
+        
+
+
+                    <!-- Checkbox for Terms and Conditions -->
+                    <div class="form-holder">
+                        <input type="checkbox" id="terms-checkbox"> I agree to all statements in <a href="#">Terms & Conditions</a>
+                        <span class="checkmark"></span>
+                    </div>
+                   
+                    <div class="checkbox">
+                        <p>Already have an account? <a href="{% url 'user:maintainer_signin' %}">Sign In</a></p>
+                    </div>
+                 
+                    
+                    <!-- Signup button -->
+                    <div class="form-login">
+                        <a href="/">
+                            <i class="fa fa-home home-icon" aria-hidden="true"></i>
+                        </a>&nbsp;&nbsp;&nbsp;<button type="submit" id="signup-button"> Sign Up</button>
+                    </div>
+                    
+                </form>
             </div>
-        {% endfor %}
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        <label for="username">Username:</label>
-        <input type="text" name="username" id="username" required>
-        <label for="name">Name:</label>
-        <input type="text" name="name" id="name" required>
-        <label for="phone_no">Phone Number:</label>
-        <input type="tel" name="phone_no" id="phone_no" required>
-        <label for="password1">Password:</label>
-        <input type="password" name="password1" id="password1" required>
-        <label for="password2">Confirm Password:</label>
-        <input type="password" name="password2" id="password2" required>
-        <button type="submit">Sign Up</button>
-    </form>
-    <p>Already have an account? <a href="{% url 'user:maintainer_signin' %}">Sign In</a></p>
+        </div>
+      
+        <!-- Password Toggle Script -->
+        <script>
+            const toggles = [
+                { toggle: '#togglePassword1', field: '#password1' },
+                { toggle: '#togglePassword2', field: '#password2' }
+            ];
+            toggles.forEach(item => {
+                const togglePassword = document.querySelector(item.toggle);
+                const password = document.querySelector(item.field);
+                togglePassword.addEventListener('click', function () {
+                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                    password.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            });
+        </script>
+    
+        <!-- Validation Script for Terms & Conditions -->
+        <script>
+            const checkbox = document.getElementById('terms-checkbox');
+            const signupButton = document.getElementById('signup-button');
+            document.getElementById('signup-form').addEventListener('submit', function (e) {
+                if (!checkbox.checked) {
+                    e.preventDefault();
+                    alert('Please agree to the Terms and Conditions before signing up.');
+                }
+            });
+        </script>
+    
+        <script src="{% static 'user/js/jquery-3.3.1.min.js' %}"></script>
+        <script src="{% static 'user/js/main.js' %}"></script>
+    </body>
+    </html>
 </body>
 </html>

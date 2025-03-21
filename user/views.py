@@ -106,7 +106,7 @@ def staff_verify_email(request, uidb64, token):
 def staff_signin(request):
     if request.user.is_authenticated and request.user.is_staff and request.user.is_active:
         return redirect('/')  # Redirect to staff dashboard if verified
-    
+
 
     if request.method == 'POST':
         username = request.POST['username']
@@ -609,37 +609,32 @@ def maintainer_verify_email(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         messages.error(request, "Verification failed due to an invalid or expired link.")
         return render(request, 'maintainer_login/maintainer_verification_failure.html')
-
+    
 def maintainer_signin(request):
-    if request.user.is_authenticated and request.user.is_staff and request.user.is_active:
-        return redirect('user:maintainer_profile')
-
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-
-        if not User.objects.filter(username=username).exists():
-            messages.error(request, "Maintainer doesn't exist. Please sign up.")
-            return render(request, 'maintainer_login/maintainer_signup.html')
-
-        user = User.objects.get(username=username)
-
-        if not user.is_staff:
-            messages.error(request, "This is a user account. Please use the user signin page.")
-            return redirect('user:signin')
-
-        if not user.is_active or not user.maintainer_profile.is_verified:
-            messages.warning(request, "Your maintainer account is not verified yet. Please contact the PandharpurGuide team.")
-            return render(request, 'maintainer_login/verification_prompt.html', {'email': username})
-
-        authenticated_user = authenticate(request, username=username, password=password)
-
-        if authenticated_user is not None and authenticated_user.is_staff and authenticated_user.is_active:
-            login(request, authenticated_user)
-            return redirect('user:maintainer_profile')
-        messages.error(request, "Incorrect username or password.")
-        return render(request, 'maintainer_login/maintainer_signin.html')
-
+        
+        # Authenticate the user
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            # Check if the user has a Maintainer profile
+            try:
+                maintainer = user.maintainer_profile  # Adjust based on your related_name
+                if not user.is_active:
+                    messages.error(request, "Your account is not yet verified. Please check your email.")
+                    return redirect('user:maintainer_signin')
+                login(request, user)
+                messages.success(request, "Successfully logged in!")
+                return redirect('some_dashboard')  # Replace with your target URL
+            except Maintainer.DoesNotExist:
+                messages.error(request, "No maintainer profile found for this user.")
+                return redirect('user:maintainer_signin')
+        else:
+            messages.error(request, "Invalid username or password.")
+            return redirect('user:maintainer_signin')
+    
     return render(request, 'maintainer_login/maintainer_signin.html')
 
 def maintainer_logout(request):

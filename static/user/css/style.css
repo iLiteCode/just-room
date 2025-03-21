@@ -27,30 +27,6 @@
   text-align: center;
 }
 
-/* Responsive design */
-@media (max-width: 766px) {
-  .inner {
-      flex-direction: column;
-  }
-  .image-holder {
-      display: none;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1024px) {
-  .inner {
-      display: flex;
-      justify-content: space-between;
-  }
-.form {
-width: 100%;
-padding-top: 33px;
-padding-bottom: 87px;
-border-radius: -17px;
-padding-right: 91px;
-padding-left: 90px;
-}
-}
 
 .form-login button {
   width: 100%;
@@ -143,7 +119,7 @@ a:hover {
 
 form {
   width: 50%;
-  padding-top: 77px;
+  padding-top: 1px;
   padding-right: 60px;
   padding-left: 15px;
 }
@@ -329,7 +305,7 @@ button:hover {
   }
   form {
     width: 100%;
-    padding: 0px 15px 70px;
+    padding: 50px 15px 70px;
   }
   .wrapper {
     background: none;
@@ -338,4 +314,53 @@ button:hover {
     display: none;
 }
 
-}/*# sourceMappingURL=style.css.map */
+}
+
+
+/* Responsive design */
+@media (max-width: 766px) {
+  .inner {
+      flex-direction: column;
+  }
+  .image-holder {
+      display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .inner {
+      display: flex;
+      justify-content: space-between;
+  }
+.form {
+width: 100%;
+padding-top: 43px;
+padding-bottom: 87px;
+border-radius: -17px;
+padding-right: 91px;
+padding-left: 90px;
+}
+
+
+}
+
+@media (min-width: 810px) {
+  
+  form {
+    padding-top: 42px;
+}
+}
+
+
+/* for home tag  00*/
+.home-icon {
+  padding-left:10px;
+  font-size: 2em;
+  color: rgb(10, 223, 226);
+  transition: transform 0.3s ease-in-out, color 0.3s;
+}
+
+.home-icon:hover {
+  transform: scale(1.2);
+  color: rgb(6, 181, 229);
+}

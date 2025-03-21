@@ -42,18 +42,27 @@
 						<span toggle="#password" class="fa fa-fw fa-eye-slash field-icon" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></span>
 					</div>
 
+					<div class="form-holder">
+						<input type="checkbox" id="terms-checkbox"> I agree to all statements in <a href="#">Terms & Conditions</a>
+							<span class="checkmark"></span>
+					</div>
+
 					<!-- Checkbox for Terms and Conditions -->
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" id="terms-checkbox"> I agree to all statements in <a href="#">Terms & Conditions</a>
-							<span class="checkmark"></span>
+							
+							
+						<p>Already have an account? <a href="{% url 'user:signin' %}">Login</a></p>
+
 						</label>
 					</div>
 
 					<!-- Signup button -->
 					<div class="form-login">
+						<a href="/">
+							<i class="fa fa-home home-icon" aria-hidden="true"></i>
+						</a>&nbsp;&nbsp;&nbsp;
 						<button type="submit" id="signup-button">Sign up</button>
-						<p>Already have an account? <a href="{% url 'user:signin' %}">Login</a></p>
 					</div>
 				</form>
 			</div>
